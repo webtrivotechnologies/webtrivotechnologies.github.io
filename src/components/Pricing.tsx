@@ -33,6 +33,7 @@ export default function Pricing() {
       <div className="pricing-grid">
         {plans.map((plan) => (
           <article className={`pricing-card${plan.featured ? " featured" : ""}`} key={plan.name} data-reveal data-stagger>
+            {plan.featured && <span className="popular-badge">Most popular</span>}
             <h3>{plan.name}</h3>
             <p>{plan.description}</p>
             <ul>

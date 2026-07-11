@@ -53,6 +53,11 @@ export default function Testimonials() {
           </article>
         ))}
       </div>
+      <div className="carousel-dots" aria-hidden="true">
+        {reviews.map((review) => (
+          <span key={review.name} />
+        ))}
+      </div>
       <div className="global-focus">
         <span className="eyebrow">Global focus</span>
         <h3>Built for international business expectations</h3>

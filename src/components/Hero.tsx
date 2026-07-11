@@ -1,4 +1,4 @@
-import { ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowRight, Calendar, ExternalLink } from "lucide-react";
 import type { Company } from "../pages/HomePage";
 import StatsStrip from "./StatsStrip";
 
@@ -16,6 +16,9 @@ export default function Hero({ company }: HeroProps) {
         <div className="hero-actions hero-actions-animated">
           <a className="primary-button" href="#contact">
             Start Your Project <ArrowRight size={18} />
+          </a>
+          <a className="secondary-button" href="#contact">
+            Book a Call <Calendar size={17} />
           </a>
           <a
             className="secondary-button"
