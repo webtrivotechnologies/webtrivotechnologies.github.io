@@ -17,9 +17,22 @@ import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import AdminPanel from "./components/AdminPanel";
+import dbSeed from "../data/db.json";
 
 // Types
 import { CMSData, SiteSettings } from "./types";
+
+const isApiEnabled = import.meta.env.DEV || import.meta.env.VITE_ENABLE_API === "true";
+const cmsSeed = dbSeed as CMSData;
+const staticCmsData: Omit<CMSData, "inquiries" | "subscribers"> = {
+  portfolio: cmsSeed.portfolio,
+  services: cmsSeed.services,
+  blogs: cmsSeed.blogs.filter((blog) => blog.published),
+  testimonials: cmsSeed.testimonials,
+  faqs: cmsSeed.faqs,
+  careers: cmsSeed.careers.filter((career) => career.active),
+  settings: cmsSeed.settings,
+};
 
 // Dynamic backup client-side fallback data (ensuring 100% layout uptime)
 const defaultBackupSettings: SiteSettings = {
@@ -38,7 +51,7 @@ const defaultBackupSettings: SiteSettings = {
 };
 
 export default function App() {
-  const [cmsData, setCmsData] = useState<Omit<CMSData, "inquiries" | "subscribers"> | null>(null);
+  const [cmsData, setCmsData] = useState<Omit<CMSData, "inquiries" | "subscribers"> | null>(staticCmsData);
   const [activeSection, setActiveSection] = useState("hero");
   const [adminOpen, setAdminOpen] = useState(false);
   
@@ -52,6 +65,11 @@ export default function App() {
   const [schedStatus, setSchedStatus] = useState<"idle" | "booking" | "success">("idle");
 
   const loadCmsData = async () => {
+    if (!isApiEnabled) {
+      setCmsData(staticCmsData);
+      return;
+    }
+
     try {
       const response = await fetch("/api/cms");
       if (response.ok) {
@@ -59,7 +77,8 @@ export default function App() {
         setCmsData(data);
       }
     } catch (err) {
-      console.error("Failed to retrieve CMS content relative to backend, using layout caches", err);
+      console.warn("Failed to retrieve CMS content from backend, using static content.", err);
+      setCmsData(staticCmsData);
     }
   };
 
@@ -119,6 +138,20 @@ export default function App() {
 
     setSchedStatus("booking");
     try {
+      if (!isApiEnabled) {
+        setSchedStatus("success");
+        setTimeout(() => {
+          setSchedStatus("idle");
+          setConsultationOpen(false);
+          setSelectedDate(null);
+          setSelectedTime(null);
+          setSchedName("");
+          setSchedEmail("");
+          setSchedProject("");
+        }, 3000);
+        return;
+      }
+
       // Post to our inquiry backend, creating a CRM inquiry lead item!
       const msg = `Scheduled Free Strategy Consultation.\nDate: ${selectedDate}\nTime Slot: ${selectedTime}\nTarget Topic: ${schedProject || "Core software audit"}`;
       

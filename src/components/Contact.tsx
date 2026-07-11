@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, MessageSquare, Map, Pin, Upload, Loader2 } from "lucide-react";
 import { SiteSettings } from "../types";
 
+const isApiEnabled = import.meta.env.DEV || import.meta.env.VITE_ENABLE_API === "true";
+
 interface ContactProps {
   settings: SiteSettings;
 }
@@ -38,6 +40,33 @@ export default function Contact({ settings }: ContactProps) {
 
     setLoading(true);
     try {
+      if (!isApiEnabled) {
+        const subject = `Project inquiry from ${formData.name}`;
+        const body = [
+          `Name: ${formData.name}`,
+          `Email: ${formData.email}`,
+          `Phone: ${formData.phone}`,
+          `Company: ${formData.company}`,
+          `Budget: ${formData.budget}`,
+          `Project Type: ${formData.projectType}`,
+          "",
+          formData.message,
+        ].join("\n");
+        window.location.href = `mailto:${settings.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        setSuccess(true);
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          company: "",
+          budget: "",
+          projectType: "",
+          message: "",
+        });
+        setFileName("");
+        return;
+      }
+
       const response = await fetch("/api/inquiries", {
         method: "POST",
         headers: {
@@ -63,7 +92,7 @@ export default function Contact({ settings }: ContactProps) {
         setFileName("");
       }
     } catch (err) {
-      console.error("Error submitting contact inquiry", err);
+      console.warn("Error submitting contact inquiry", err);
     } finally {
       setLoading(false);
     }

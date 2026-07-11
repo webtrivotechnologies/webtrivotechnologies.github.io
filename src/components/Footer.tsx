@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Mail, Check, Send, Linkedin, Instagram, Facebook, Youtube, Github, ShieldAlert } from "lucide-react";
 import { SiteSettings } from "../types";
 
+const isApiEnabled = import.meta.env.DEV || import.meta.env.VITE_ENABLE_API === "true";
+
 interface FooterProps {
   settings: SiteSettings;
   onNavigate: (sectionId: string) => void;
@@ -17,6 +19,13 @@ export default function Footer({ settings, onNavigate }: FooterProps) {
 
     setStatus("submitting");
     try {
+      if (!isApiEnabled) {
+        setStatus("success");
+        setEmail("");
+        setTimeout(() => setStatus("idle"), 3000);
+        return;
+      }
+
       const response = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
