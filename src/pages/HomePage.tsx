@@ -9,6 +9,7 @@ import Services from "../components/Services";
 import Testimonials from "../components/Testimonials";
 import WhatsAppButton from "../components/WhatsAppButton";
 import WhyChooseUs from "../components/WhyChooseUs";
+import { useEffect } from "react";
 
 export const company = {
   name: "Webtrivo Technologies",
@@ -22,6 +23,24 @@ export const company = {
 export type Company = typeof company;
 
 export default function HomePage() {
+  useEffect(() => {
+    const items = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.14 },
+    );
+
+    items.forEach((item) => observer.observe(item));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="site-shell">
       <Header company={company} />

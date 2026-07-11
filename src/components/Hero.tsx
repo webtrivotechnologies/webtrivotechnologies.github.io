@@ -14,7 +14,7 @@ const trustItems = [
 
 export default function Hero({ company }: HeroProps) {
   return (
-    <section id="home" className="hero section">
+    <section id="home" className="hero section" data-reveal>
       <div className="hero-copy">
         <span className="eyebrow">International technology partner</span>
         <h1>Transforming Ideas Into Powerful Digital Solutions</h1>
@@ -44,38 +44,50 @@ export default function Hero({ company }: HeroProps) {
         </div>
       </div>
 
-      <div className="hero-visual" aria-label="Software dashboard illustration">
-        <div className="visual-window">
+      <div className="hero-visual" aria-label="Polished product dashboard illustration">
+        <div className="visual-window product-mockup">
           <div className="window-bar">
-            <span />
-            <span />
-            <span />
+            <span className="dot red" />
+            <span className="dot amber" />
+            <span className="dot green" />
+            <strong>Webtrivo Command Center</strong>
           </div>
           <div className="dashboard-grid">
-            <div className="metric-card wide">
-              <small>Project pipeline</small>
-              <strong>Web, App, CRM, ERP</strong>
-              <div className="metric-line" />
+            <div className="metric-card wide premium-panel">
+              <div>
+                <small>Project pipeline</small>
+                <strong>Web, App, CRM, ERP</strong>
+              </div>
+              <div className="chart-card">
+                <i style={{ height: "42%" }} />
+                <i style={{ height: "64%" }} />
+                <i style={{ height: "52%" }} />
+                <i style={{ height: "82%" }} />
+                <i style={{ height: "70%" }} />
+              </div>
             </div>
-            <div className="metric-card">
+            <div className="metric-card stat-panel">
               <small>Markets</small>
-              <strong>USA UK UAE</strong>
+              <strong>USA · UK · UAE</strong>
+              <span>International delivery desk</span>
             </div>
-            <div className="metric-card accent">
+            <div className="metric-card accent stat-panel">
               <small>Support</small>
               <strong>Launch + Care</strong>
+              <span>Maintenance plans ready</span>
             </div>
             <div className="phone-card">
-              <div />
-              <span />
-              <span />
-              <span />
+              <div className="phone-screen">
+                <b />
+                <span />
+                <span />
+              </div>
             </div>
             <div className="code-card">
+              <span className="long" />
               <span />
-              <span />
-              <span />
-              <span />
+              <span className="medium" />
+              <span className="short" />
             </div>
           </div>
         </div>

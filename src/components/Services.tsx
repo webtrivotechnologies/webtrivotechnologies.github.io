@@ -42,7 +42,7 @@ const services = [
 
 export default function Services() {
   return (
-    <section id="services" className="section">
+    <section id="services" className="section" data-reveal>
       <div className="section-heading">
         <span className="eyebrow">Services</span>
         <h2>Digital engineering for growing businesses</h2>
@@ -54,7 +54,7 @@ export default function Services() {
 
       <div className="service-grid">
         {services.map(({ title, description, icon: Icon }) => (
-          <article className="service-card" key={title}>
+          <article className="service-card" key={title} data-reveal>
             <span className="card-icon" aria-hidden="true">
               <Icon size={24} />
             </span>

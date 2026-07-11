@@ -1,6 +1,6 @@
 export default function About() {
   return (
-    <section id="about" className="section split-section">
+    <section id="about" className="section split-section" data-reveal>
       <div>
         <span className="eyebrow">About Webtrivo</span>
         <h2>Scalable digital products for startups, small businesses, and established companies.</h2>

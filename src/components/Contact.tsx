@@ -49,7 +49,7 @@ export default function Contact({ company }: ContactProps) {
   };
 
   return (
-    <section id="contact" className="section contact-section">
+    <section id="contact" className="section contact-section" data-reveal>
       <div className="contact-copy">
         <span className="eyebrow">Contact</span>
         <h2>Tell us what you want to build</h2>

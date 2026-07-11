@@ -7,7 +7,7 @@ type PortfolioProps = {
 
 export default function Portfolio({ company }: PortfolioProps) {
   return (
-    <section id="portfolio" className="section portfolio-band">
+    <section id="portfolio" className="section portfolio-band" data-reveal>
       <div>
         <span className="eyebrow">Portfolio</span>
         <h2>Explore selected project work</h2>
