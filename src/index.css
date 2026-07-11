@@ -1108,43 +1108,55 @@ h3 {
   overflow: hidden;
 }
 
-.process-list {
+.process-timeline {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0;
+  gap: 26px;
+  max-width: 1040px;
+  margin: 0 auto;
 }
 
-.process-list::before {
+.process-timeline::before {
   position: absolute;
-  top: 30px;
-  right: 8%;
-  left: 8%;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0.74), rgba(37, 99, 235, 0.12));
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 900ms ease;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.82), rgba(37, 99, 235, 0.08));
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 1000ms ease;
   content: "";
 }
 
-.process-section.is-visible .process-list::before {
-  transform: scaleX(1);
+.process-section.is-visible .process-timeline::before {
+  transform: scaleY(1);
 }
 
 .process-step {
   position: relative;
-  padding: 82px 14px 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px minmax(0, 1fr);
+  align-items: center;
 }
 
-.process-step span {
-  position: absolute;
-  top: 0;
-  left: 14px;
+.process-step:nth-child(odd) .process-card {
+  grid-column: 1;
+  text-align: right;
+}
+
+.process-step:nth-child(even) .process-card {
+  grid-column: 3;
+}
+
+.process-node {
   z-index: 1;
+  grid-column: 2;
+  grid-row: 1;
   display: grid;
   width: 62px;
   height: 62px;
+  place-self: center;
   place-items: center;
   border: 1px solid rgba(37, 99, 235, 0.22);
   border-radius: 50%;
@@ -1156,20 +1168,39 @@ h3 {
   transition: transform 320ms ease, box-shadow 320ms ease;
 }
 
-.process-step.is-visible span {
-  transform: scale(1.04);
+.process-step.is-visible .process-node {
+  transform: scale(1.06);
   box-shadow: 0 16px 34px rgba(37, 99, 235, 0.24), 0 0 0 7px rgba(37, 99, 235, 0.1);
+}
+
+.process-card {
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.process-icon {
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  color: #ffffff;
+  background: var(--gradient-primary);
 }
 
 .process-step h3 {
   margin: 0 0 10px;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .process-step p {
   margin-bottom: 0;
   color: var(--color-text-muted);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.65;
 }
 
@@ -1331,6 +1362,12 @@ h3 {
   gap: 6px;
   color: var(--color-primary);
   font-weight: 900;
+}
+
+.case-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 26px;
 }
 
 .tech-stack {
@@ -1513,6 +1550,12 @@ h3 {
   transform: translateY(-2px);
 }
 
+.market-row .primary-market {
+  border-color: color-mix(in srgb, var(--color-primary) 42%, var(--color-border));
+  color: var(--color-primary);
+  font-weight: 900;
+}
+
 .market-row b {
   display: grid;
   width: 30px;
@@ -1522,6 +1565,21 @@ h3 {
   color: var(--color-primary);
   background: #eff6ff;
   font-size: 11px;
+}
+
+.whatsapp-icon {
+  color: #25d366;
+  flex: 0 0 auto;
+}
+
+.form-button .whatsapp-icon {
+  color: #ffffff;
+}
+
+.faq-nudge a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .carousel-dots {
@@ -2233,13 +2291,12 @@ h3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .process-list {
-    grid-template-columns: 1fr;
-    gap: 0;
-    padding-left: 30px;
+  .process-timeline {
+    gap: 18px;
+    padding-left: 34px;
   }
 
-  .process-list::before {
+  .process-timeline::before {
     top: 0;
     bottom: 0;
     left: 30px;
@@ -2250,16 +2307,26 @@ h3 {
     transform-origin: top;
   }
 
-  .process-section.is-visible .process-list::before {
+  .process-section.is-visible .process-timeline::before {
     transform: scaleY(1);
   }
 
   .process-step {
-    padding: 0 0 34px 62px;
+    grid-template-columns: 58px minmax(0, 1fr);
+    align-items: start;
   }
 
-  .process-step span {
-    left: -30px;
+  .process-step:nth-child(odd) .process-card,
+  .process-step:nth-child(even) .process-card {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .process-node {
+    grid-column: 1;
+    width: 54px;
+    height: 54px;
+    place-self: start center;
   }
 
   .footer-grid {
@@ -2448,7 +2515,7 @@ h3 {
     transform: none;
   }
 
-  .process-list::before {
+  .process-timeline::before {
     transform: none;
   }
 }

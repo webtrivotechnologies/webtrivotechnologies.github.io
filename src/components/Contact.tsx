@@ -1,6 +1,7 @@
-import { Mail, MessageCircle, Send } from "lucide-react";
+import { Mail, Send } from "lucide-react";
 import { type ChangeEvent, type FormEvent, useState } from "react";
 import type { Company } from "../pages/HomePage";
+import WhatsAppIcon from "./WhatsAppIcon";
 
 type ContactProps = {
   company: Company;
@@ -63,7 +64,7 @@ export default function Contact({ company }: ContactProps) {
             <Mail size={18} /> {company.email}
           </a>
           <a href={company.whatsappPrefill} target="_blank" rel="noreferrer">
-            <MessageCircle size={18} /> WhatsApp Webtrivo
+            <WhatsAppIcon size={18} /> WhatsApp Webtrivo
           </a>
         </div>
         <div className="lead-magnet">
@@ -114,7 +115,7 @@ export default function Contact({ company }: ContactProps) {
           />
         </label>
         <button className="primary-button form-button" type="submit">
-          Submit via WhatsApp <Send size={17} />
+          <WhatsAppIcon size={18} /> Submit via WhatsApp <Send size={17} />
         </button>
       </form>
     </section>

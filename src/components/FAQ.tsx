@@ -1,5 +1,6 @@
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+import WhatsAppIcon from "./WhatsAppIcon";
 
 const faqs = [
   {
@@ -53,7 +54,7 @@ export default function FAQ() {
       <div className="faq-nudge">
         <strong>Still have questions?</strong>
         <a href="https://wa.me/917463867570?text=Hello%20Webtrivo%20Technologies%2C%20I%20have%20a%20question%20about%20a%20project." target="_blank" rel="noreferrer">
-          Chat with us on WhatsApp
+          <WhatsAppIcon size={17} /> Chat with us on WhatsApp
         </a>
       </div>
     </section>

@@ -1,6 +1,7 @@
 import { Calendar, Mail, MessageCircle, X } from "lucide-react";
 import { useState } from "react";
 import type { Company } from "../pages/HomePage";
+import WhatsAppIcon from "./WhatsAppIcon";
 
 type ContactLauncherProps = {
   company: Company;
@@ -13,7 +14,7 @@ export default function ContactLauncher({ company }: ContactLauncherProps) {
     <div className={`contact-launcher${open ? " open" : ""}`}>
       <div className="contact-options" aria-hidden={!open}>
         <a href={company.whatsappPrefill} target="_blank" rel="noreferrer">
-          <MessageCircle size={17} /> WhatsApp
+          <WhatsAppIcon size={17} /> WhatsApp
         </a>
         <a href={`mailto:${company.email}`}>
           <Mail size={17} /> Email

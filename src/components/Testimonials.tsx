@@ -1,9 +1,23 @@
 const audiences = [
+  { label: "India", flag: "IN", primary: true },
   { label: "USA", flag: "US" },
   { label: "UK", flag: "UK" },
+  { label: "Canada", flag: "CA" },
   { label: "Australia", flag: "AU" },
   { label: "UAE", flag: "AE" },
   { label: "Germany", flag: "DE" },
+  { label: "Singapore", flag: "SG" },
+  { label: "Netherlands", flag: "NL" },
+  { label: "France", flag: "FR" },
+  { label: "Saudi Arabia", flag: "SA" },
+  { label: "Qatar", flag: "QA" },
+  { label: "New Zealand", flag: "NZ" },
+  { label: "Ireland", flag: "IE" },
+  { label: "South Africa", flag: "ZA" },
+  { label: "Malaysia", flag: "MY" },
+  { label: "Kenya", flag: "KE" },
+  { label: "Nigeria", flag: "NG" },
+  { label: "Philippines", flag: "PH" },
   { label: "International businesses", flag: "GL" },
 ];
 
@@ -64,7 +78,7 @@ export default function Testimonials() {
       </div>
       <div className="market-row">
         {audiences.map((market) => (
-          <span key={market.label}>
+          <span className={market.primary ? "primary-market" : ""} key={market.label}>
             <b>{market.flag}</b>
             {market.label}
           </span>

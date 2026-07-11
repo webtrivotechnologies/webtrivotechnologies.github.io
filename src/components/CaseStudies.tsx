@@ -10,7 +10,7 @@ const studies = [
   {
     name: "CommerceFlow",
     category: "E-commerce platform",
-    result: "40% faster checkout flow",
+    result: "40% faster checkout flow for a growing online retailer.",
     metric: "40%",
     type: "E-commerce",
     stack: ["React", "Node", "Stripe"],
@@ -18,7 +18,7 @@ const studies = [
   {
     name: "OpsSuite CRM",
     category: "Sales and operations CRM",
-    result: "Cleaner lead tracking across teams",
+    result: "Cleaner lead tracking across distributed sales teams.",
     metric: "CRM",
     type: "CRM",
     stack: ["React", "Laravel", "MySQL"],
@@ -26,14 +26,38 @@ const studies = [
   {
     name: "FieldPro Mobile",
     category: "Mobile workforce app",
-    result: "Simplified reporting for remote staff",
+    result: "Simplified reporting for remote service staff.",
     metric: "Mobile",
     type: "Mobile",
     stack: ["Flutter", "Firebase", "AWS"],
   },
+  {
+    name: "StockLine ERP",
+    category: "Manufacturing ERP",
+    result: "30% reduction in stock discrepancies across inventory and finance.",
+    metric: "30%",
+    type: "ERP",
+    stack: ["React", "Node", "PostgreSQL"],
+  },
+  {
+    name: "CarePoint Scheduler",
+    category: "Healthcare booking platform",
+    result: "Cut no-shows by 25% with automated appointment reminders.",
+    metric: "25%",
+    type: "Web",
+    stack: ["Next.js", "Twilio", "Cloud"],
+  },
+  {
+    name: "PropertyHub Portal",
+    category: "Real estate listings and CRM",
+    result: "Reduced lead response time from hours to minutes.",
+    metric: "CRM",
+    type: "CRM",
+    stack: ["React", "Maps API", "CRM"],
+  },
 ];
 
-const filters = ["All", "Web", "Mobile", "CRM", "E-commerce"];
+const filters = ["All", "Web", "Mobile", "CRM", "ERP", "E-commerce"];
 
 export default function CaseStudies({ company }: CaseStudiesProps) {
   const [active, setActive] = useState("All");
@@ -86,6 +110,11 @@ export default function CaseStudies({ company }: CaseStudiesProps) {
         {visibleStudies.map((study) => (
           <span key={study.name} />
         ))}
+      </div>
+      <div className="case-footer">
+        <a className="secondary-button" href={company.portfolioUrl} target="_blank" rel="noreferrer">
+          View all projects <ExternalLink size={16} />
+        </a>
       </div>
     </section>
   );
