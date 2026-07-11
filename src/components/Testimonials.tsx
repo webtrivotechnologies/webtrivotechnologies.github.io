@@ -41,7 +41,7 @@ export default function Testimonials() {
       </div>
       <div className="review-grid">
         {reviews.map((review) => (
-          <article className="review-card" key={review.name}>
+          <article className="review-card" key={review.name} data-reveal data-stagger>
             <div className="stars" aria-label="5 star rating">
               ★★★★★
             </div>

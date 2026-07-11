@@ -32,7 +32,7 @@ export default function Pricing() {
       </div>
       <div className="pricing-grid">
         {plans.map((plan) => (
-          <article className={`pricing-card${plan.featured ? " featured" : ""}`} key={plan.name}>
+          <article className={`pricing-card${plan.featured ? " featured" : ""}`} key={plan.name} data-reveal data-stagger>
             <h3>{plan.name}</h3>
             <p>{plan.description}</p>
             <ul>

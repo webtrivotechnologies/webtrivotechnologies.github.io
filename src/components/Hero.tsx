@@ -1,28 +1,19 @@
-import { ArrowRight, ExternalLink, ShieldCheck } from "lucide-react";
+import { ArrowRight, ExternalLink } from "lucide-react";
 import type { Company } from "../pages/HomePage";
+import StatsStrip from "./StatsStrip";
 
 type HeroProps = {
   company: Company;
 };
 
-const trustItems = [
-  "7+ Years of Experience",
-  "Global Client Support",
-  "Custom-Built Solutions",
-  "Reliable Development Team",
-];
-
 export default function Hero({ company }: HeroProps) {
   return (
     <section id="home" className="hero section" data-reveal>
       <div className="hero-copy">
-        <span className="eyebrow">International technology partner</span>
-        <h1>Transforming Ideas Into Powerful Digital Solutions</h1>
-        <p>
-          We build modern websites, mobile apps, CRM, ERP, e-commerce platforms,
-          and custom software solutions for businesses worldwide.
-        </p>
-        <div className="hero-actions">
+        <span className="eyebrow hero-kicker">International technology partner</span>
+        <h1 className="hero-title">Transforming Ideas Into Powerful Digital Solutions</h1>
+        <p className="hero-subtitle">Modern websites, apps, CRM, ERP, and software for businesses worldwide.</p>
+        <div className="hero-actions hero-actions-animated">
           <a className="primary-button" href="#contact">
             Start Your Project <ArrowRight size={18} />
           </a>
@@ -35,16 +26,10 @@ export default function Hero({ company }: HeroProps) {
             View Our Portfolio <ExternalLink size={17} />
           </a>
         </div>
-        <div className="trust-row" aria-label="Trust indicators">
-          {trustItems.map((item) => (
-            <span key={item}>
-              <ShieldCheck size={16} /> {item}
-            </span>
-          ))}
-        </div>
+        <StatsStrip />
       </div>
 
-      <div className="hero-visual" aria-label="Polished product dashboard illustration">
+      <div className="hero-visual hero-visual-animated" aria-label="Polished product dashboard illustration">
         <div className="visual-window product-mockup">
           <div className="window-bar">
             <span className="dot red" />

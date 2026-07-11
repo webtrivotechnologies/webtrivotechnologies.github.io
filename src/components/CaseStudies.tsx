@@ -39,7 +39,7 @@ export default function CaseStudies({ company }: CaseStudiesProps) {
       </div>
       <div className="case-grid">
         {studies.map((study) => (
-          <a className="case-card" href={company.portfolioUrl} key={study.name} target="_blank" rel="noreferrer">
+          <a className="case-card" href={company.portfolioUrl} key={study.name} target="_blank" rel="noreferrer" data-reveal data-stagger>
             <div className="case-thumbnail">
               <span>{study.category}</span>
               <b>{study.name}</b>

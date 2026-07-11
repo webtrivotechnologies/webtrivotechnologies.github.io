@@ -34,7 +34,7 @@ export default function Process() {
       </div>
       <div className="process-list">
         {steps.map((step, index) => (
-          <article className="process-step" key={step.title} data-reveal>
+          <article className="process-step" key={step.title} data-reveal data-stagger>
             <span>{String(index + 1).padStart(2, "0")}</span>
             <h3>{step.title}</h3>
             <p>{step.description}</p>

@@ -10,7 +10,6 @@ import Portfolio from "../components/Portfolio";
 import Pricing from "../components/Pricing";
 import Process from "../components/Process";
 import Services from "../components/Services";
-import StatsStrip from "../components/StatsStrip";
 import TechStack from "../components/TechStack";
 import Testimonials from "../components/Testimonials";
 import WhatsAppButton from "../components/WhatsAppButton";
@@ -30,12 +29,16 @@ export type Company = typeof company;
 
 export default function HomePage() {
   useEffect(() => {
+    document.documentElement.classList.add("js");
     const items = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("is-visible");
+            entry.target.querySelectorAll<HTMLElement>("[data-stagger]").forEach((child, index) => {
+              child.style.transitionDelay = `${Math.min(index * 90, 540)}ms`;
+            });
             observer.unobserve(entry.target);
           }
         });
@@ -52,7 +55,6 @@ export default function HomePage() {
       <Header company={company} />
       <main>
         <Hero company={company} />
-        <StatsStrip />
         <Services />
         <TechStack />
         <About />

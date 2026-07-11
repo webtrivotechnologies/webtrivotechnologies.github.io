@@ -36,7 +36,7 @@ export default function WhyChooseUs() {
       </div>
       <div className="reason-grid">
         {reasons.map((reason) => (
-          <div className="reason-item" key={reason.title} data-reveal>
+          <div className="reason-item" key={reason.title} data-reveal data-stagger>
             <span className="reason-icon">
               <CheckCircle2 size={20} />
             </span>

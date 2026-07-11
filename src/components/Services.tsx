@@ -54,7 +54,7 @@ export default function Services() {
 
       <div className="service-grid">
         {services.map(({ title, description, icon: Icon }) => (
-          <article className="service-card" key={title} data-reveal>
+          <article className="service-card" key={title} data-reveal data-stagger>
             <span className="card-icon" aria-hidden="true">
               <Icon size={24} />
             </span>
