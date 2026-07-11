@@ -1,11 +1,17 @@
 import About from "../components/About";
+import BackToTop from "../components/BackToTop";
+import CaseStudies from "../components/CaseStudies";
 import Contact from "../components/Contact";
+import FAQ from "../components/FAQ";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import Portfolio from "../components/Portfolio";
+import Pricing from "../components/Pricing";
 import Process from "../components/Process";
 import Services from "../components/Services";
+import StatsStrip from "../components/StatsStrip";
+import TechStack from "../components/TechStack";
 import Testimonials from "../components/Testimonials";
 import WhatsAppButton from "../components/WhatsAppButton";
 import WhyChooseUs from "../components/WhyChooseUs";
@@ -46,16 +52,22 @@ export default function HomePage() {
       <Header company={company} />
       <main>
         <Hero company={company} />
+        <StatsStrip />
         <Services />
+        <TechStack />
         <About />
         <WhyChooseUs />
         <Process />
+        <CaseStudies company={company} />
         <Portfolio company={company} />
         <Testimonials />
+        <Pricing />
+        <FAQ />
         <Contact company={company} />
       </main>
       <Footer company={company} />
       <WhatsAppButton href={company.whatsappPrefill} />
+      <BackToTop />
     </div>
   );
 }

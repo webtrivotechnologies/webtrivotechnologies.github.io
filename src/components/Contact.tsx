@@ -66,6 +66,10 @@ export default function Contact({ company }: ContactProps) {
             <MessageCircle size={18} /> WhatsApp Webtrivo
           </a>
         </div>
+        <div className="lead-magnet">
+          <strong>Free 30-minute consultation</strong>
+          <span>Bring your idea, workflow, or existing system. We will help map the next best step.</span>
+        </div>
       </div>
 
       <form className="contact-form" onSubmit={handleSubmit}>

@@ -13,6 +13,7 @@ export default function WhatsAppButton({ href }: WhatsAppButtonProps) {
       rel="noreferrer"
       aria-label="Chat with Webtrivo Technologies on WhatsApp"
     >
+      <span>Chat with us</span>
       <MessageCircle size={24} />
     </a>
   );

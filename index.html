@@ -16,6 +16,19 @@
     <meta property="og:url" content="https://webtrivotechnologies.github.io/" />
     <meta name="theme-color" content="#0b63f6" />
     <title>Webtrivo Technologies | Website, App, CRM & ERP Development</title>
+    <script>
+      (() => {
+        const saved = localStorage.getItem("webtrivo-theme") || "system";
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const resolved = saved === "system" ? (prefersDark ? "dark" : "light") : saved;
+        document.documentElement.dataset.themeChoice = saved;
+        if (resolved === "dark") {
+          document.documentElement.dataset.theme = "dark";
+        } else {
+          document.documentElement.removeAttribute("data-theme");
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="/assets/index.css" data-github-pages-fallback />
   </head>
   <body>
