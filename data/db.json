@@ -1,0 +1,255 @@
+{
+  "inquiries": [],
+  "portfolio": [
+    {
+      "id": "port-1",
+      "title": "FinSphere",
+      "subtitle": "Next-Gen Fintech ERP & Digital Wallet Platform",
+      "description": "We built a multi-currency digital banking core and customized ERP backend designed for modern fintech enterprises to manage accounts, process high-throughput transactions, and automate compliance audits.",
+      "challenge": "The client struggled with low-throughput legacy SOAP services, complex cross-border KYC pipelines, and high transaction latency that caused performance degradation during peak hours.",
+      "solution": "We architected an event-driven microservices backend in Node.js and NestJS, designed a highly responsive client dashboard using Next.js/Tailwind CSS, integrated a high-security PostgreSQL clustering layer, and automated KYC pipelines using custom AI visual matching engines.",
+      "results": "Transaction latency dropped by 74%, compliance processing became 100% automated via AI pipelines, and platform scaling supported over 10M transactions per day.",
+      "techStack": ["Next.js", "Node.js", "PostgreSQL", "Docker", "AWS", "Tailwind CSS"],
+      "duration": "6 Months",
+      "client": "FinSphere Financial Group (UK)",
+      "category": "ERP & Fintech",
+      "mockupType": "dashboard",
+      "metricValue": "74%",
+      "metricLabel": "Latency Reduction",
+      "featured": true
+    },
+    {
+      "id": "port-2",
+      "title": "HealthPulse",
+      "subtitle": "AI-Driven Patient Care Portal & iOS/Android App",
+      "description": "A comprehensive HIPAA-compliant healthcare portal and cross-platform mobile application utilizing AI matching models to optimize therapist matching, remote patient monitoring, and seamless virtual consultations.",
+      "challenge": "Connecting remote patients with therapists in real-time while adhering to strict HIPAA security regulations, handling real-time medical file sharing, and ensuring offline usability on mobile devices.",
+      "solution": "Designed and deployed native-feeling cross-platform apps with Flutter and a secure Python/Django backend. Integrated end-to-end encrypted video consultation using WebRTC and an offline-first sync cache using SQLite/Firebase.",
+      "results": "Therapist-patient matches completed in less than 2 minutes on average, driving a 42% increase in patient engagement and securing 100% HIPAA audit compliance.",
+      "techStack": ["Flutter", "Python", "PostgreSQL", "Firebase", "WebRTC", "Google Cloud"],
+      "duration": "4 Months",
+      "client": "HealthPulse Inc. (USA)",
+      "category": "Mobile App & AI Solutions",
+      "mockupType": "phone",
+      "metricValue": "42%",
+      "metricLabel": "Engagement Increase",
+      "featured": true
+    },
+    {
+      "id": "port-3",
+      "title": "SaaSFlow CRM",
+      "subtitle": "Enterprise Sales Automation & Predictive Analytics Platform",
+      "description": "An interactive, multi-tenant B2B CRM designed to help global logistics and commercial real estate sales teams automate pipeline management, view predictive sales charts, and manage communications.",
+      "challenge": "Commercial real estate and logistics SMBs lost countless hours copy-pasting customer records from emails into distinct spreadsheets without central reporting or automated forecasting.",
+      "solution": "Built a rich Single Page Application in React with a high-performance PHP/Laravel API. Created a custom drag-and-drop Kanban pipeline interface, configured automated email scraping integrations, and deployed lightweight AI models for lead forecasting.",
+      "results": "Sales cycle duration reduced by 22 days on average, with pipeline forecasting accuracy rising to 91% and manual admin labor dropping by 14 hours per salesperson weekly.",
+      "techStack": ["React", "Laravel", "MySQL", "Tailwind", "CI/CD", "Azure"],
+      "duration": "5 Months",
+      "client": "SaaSFlow Logistics (Germany)",
+      "category": "SaaS & CRM Development",
+      "mockupType": "laptop",
+      "metricValue": "91%",
+      "metricLabel": "Forecasting Accuracy",
+      "featured": true
+    }
+  ],
+  "services": [
+    {
+      "id": "serv-1",
+      "title": "Custom Website Development",
+      "shortDescription": "Stunning, supercharged, and SEO-optimized web applications designed to convert.",
+      "fullDescription": "We build highly optimized and visually breathtaking corporate websites, landing pages, and interactive digital experiences. Our engineers write clean, standards-compliant markup using modern tools like React, Next.js, and Tailwind CSS to guarantee maximum performance and perfect Lighthouse scores.",
+      "icon": "Globe",
+      "features": ["Vercel & AWS Edge Deployments", "Custom Design & Tailored Layouts", "SEO Architecture & Microdata Structured Schema", "95+ Lighthouse Score Guaranteed", "Seamless CMS Integration"],
+      "category": "core"
+    },
+    {
+      "id": "serv-2",
+      "title": "Mobile App Development",
+      "shortDescription": "Top-tier iOS, Android, and cross-platform mobile apps built to scale.",
+      "fullDescription": "We conceptualize, design, and develop world-class mobile applications for both Apple iOS and Google Android. Leveraging Flutter and React Native, we deliver near-native performance, butter-smooth 120Hz gesture animations, and clean, modular architectures that keep maintenance costs low.",
+      "icon": "Smartphone",
+      "features": ["Native iOS (Swift) & Android (Kotlin) Capability", "High-performance Cross-platform (Flutter / React Native)", "App Store and Google Play Store Publishing Support", "Offline-first Database Syncing", "Push Notification Campaigns & In-App Purchases"],
+      "category": "core"
+    },
+    {
+      "id": "serv-3",
+      "title": "Enterprise CRM & ERP Systems",
+      "shortDescription": "Automate business workflows and optimize standard resource planning.",
+      "fullDescription": "Transform your business operations with tailormade CRM and ERP suites. We specialize in engineering business portals, internal inventory tracking systems, automated payroll logs, and centralized sales dashboards that help companies run smoothly without bloated subscription fees.",
+      "icon": "Layers",
+      "features": ["Custom Sales Pipelines & Kanban Boards", "Interactive Charts & Business Intelligence Reporting", "Automated Billing & Multi-currency Invoice Systems", "Role-based Access Controls & Audit Trails", "Legacy Database Migration & REST Integration"],
+      "category": "enterprise"
+    },
+    {
+      "id": "serv-4",
+      "title": "AI & Automation Solutions",
+      "shortDescription": "Empower your business with smart chatbots, custom LLMs, and predictive analysis.",
+      "fullDescription": "Leverage next-generation AI pipelines to automate customer service, categorize medical/financial records, and generate predictive dashboards. We integrate state-of-the-art models like Gemini, build intelligent chatbots, and automate redundant workflows using advanced Python and cloud microservices.",
+      "icon": "Sparkles",
+      "features": ["Gemini AI & OpenAI API Client Orchestration", "Dynamic AI Chatbots & Customer Assistants", "Natural Language Document Indexing & Querying", "Machine Learning Business Forecasting", "No-Code Automated Integration (Make/Zapier, Custom APIs)"],
+      "category": "enterprise"
+    },
+    {
+      "id": "serv-5",
+      "title": "Dedicated Developers & Tech Staffing",
+      "shortDescription": "Hire top 1% dedicated remote software engineers to accelerate your roadmap.",
+      "fullDescription": "Instantly expand your engineering bandwidth with full-time, dedicated software developers. We handpick elite frontend, backend, and fullstack developers who align with your working hours, communicate fluently in English, and integrate natively into your Slack, Jira, and GitHub channels.",
+      "icon": "Users",
+      "features": ["Rigorous Pre-vetting & Technical Evaluation", "Overlapping Working Hours & Fluent Communication", "Flexible Monthly Contracts with Transparent Pricing", "Full Stack, DevOps, Mobile, and QA Specialists", "Direct Slack, Teams, and Jira Integration"],
+      "category": "growth"
+    },
+    {
+      "id": "serv-6",
+      "title": "SaaS Product Development",
+      "shortDescription": "Turn your software ideas into secure, multi-tenant B2B or B2C SaaS platforms.",
+      "fullDescription": "We guide SaaS founders from conceptual proof-of-concept to product-market launch. Our team builds modular SaaS foundations incorporating stripe billing subscriptions, robust multi-tenant security structures, automated email notifications, and detailed user activity monitors.",
+      "icon": "Cpu",
+      "features": ["Multi-tenant Security & Database Isolation", "Stripe & PayPal Subscription Pipeline Setup", "User Activity Auditing & Telemetry Dashboards", "Dynamic Invite Schemes & Organization Settings", "Scalable Serverless Infrastructure Design"],
+      "category": "growth"
+    }
+  ],
+  "blogs": [
+    {
+      "id": "blog-1",
+      "title": "Why Modern Startups Are Choosing Next.js & Laravel in 2026",
+      "summary": "Exploring the powerful synergy of Next.js for high-performance React frontends and Laravel for secure, robust PHP-backed REST APIs.",
+      "content": "### Introduction\n\nIn the ever-evolving landscape of software development, speed, security, and developer velocity are critical metrics for early-stage startups and seasoned enterprises alike.\n\nHistorically, teams selected single-stack ecosystems (like pure JavaScript with Next.js + Node) to streamline development. However, in 2026, we are witnessing a substantial rise in multi-stack pairings—specifically **Next.js** on the frontend coupled with **Laravel (PHP)** on the backend.\n\n### The Frontend: Next.js and the Edge\n\nNext.js provides startups with:\n- **Incremental Static Regeneration (ISR)** for blazingly fast catalog loads.\n- **Edge Rendering** to serve pages within milliseconds worldwide.\n- **Perfect SEO** out-of-the-box using built-in metadata frameworks.\n\n### The Backend: Why Laravel Still Rules\n\nWhile Node.js is powerful, developers often spend weeks building basic scaffolding. Laravel provides these critical features natively:\n1. **Built-in Authentication & Guard Schemas**\n2. **Eloquent ORM** for elegant, readable database queries\n3. **Queues & Jobs** to run heavy tasks asynchronously\n4. **Database Migrations & Seeders** right from the command line\n\n### Conclusion\n\nBy splitting your frontend into a highly static React layout hosted on Vercel and pointing it to a rock-solid Laravel API on AWS or DigitalOcean, you get the absolute best of both worlds: unbeatable frontend speeds and structured backend reliability.",
+      "category": "Web Development",
+      "readTime": "5 min read",
+      "authorName": "Ritesh Kumar",
+      "authorRole": "Chief Architect",
+      "date": "July 10, 2026",
+      "published": true
+    },
+    {
+      "id": "blog-2",
+      "title": "How Custom CRM & ERP Can Save Medium Businesses Thousands Monthly",
+      "summary": " Bloated SaaS subscriptions can quickly drain corporate margins. Discover why custom software often yields a positive ROI within 12 months.",
+      "content": "### The Subscription Bloat Trap\n\nMany businesses start by licensing commercial CRM and ERP tools like Salesforce or SAP. Initially, at $25 per user, it seems affordable.\n\nBut as your workforce grows to 50+ users, the math changes:\n- **50 users x $150/month = $7,500/month ($90,000/year)**\n- Plus, you pay additional licensing for third-party plug-ins just to extract basic PDF invoices or sync files.\n\n### The Custom Alternative\n\nA custom-engineered CRM or ERP system built by Webtrivo Technologies is **yours forever**:\n- **No Per-User Licensing fees**.\n- Form-fitted to match your exact workflows—no complex workarounds or unused buttons.\n- Direct ownership of your data, hosted securely on your private cloud (AWS/Azure/GCP).\n\n### Calculating the ROI\n\nWith custom CRM development averaging a one-time capital investment, most of our SMB clients break even within 9 to 12 months. Beyond financial savings, automated pipelines reduce human data-entry error by over 40%, unlocking substantial staff efficiency.",
+      "category": "Enterprise Solutions",
+      "readTime": "4 min read",
+      "authorName": "Siddharth Mehta",
+      "authorRole": "Product Consultant",
+      "date": "June 28, 2026",
+      "published": true
+    }
+  ],
+  "testimonials": [
+    {
+      "id": "test-1",
+      "name": "Marcus Vance",
+      "role": "Chief Technology Officer",
+      "company": "FinSphere Financial Group",
+      "content": "Webtrivo Technologies completely turned our scaling challenges around. Their engineering team architected our entire digital ledger core, reducing latency by 74%. They function like a true enterprise partner rather than a vendor.",
+      "rating": 5
+    },
+    {
+      "id": "test-2",
+      "name": "Sarah Jenkins",
+      "role": "VP of Operations",
+      "company": "HealthPulse Inc.",
+      "content": "We needed a HIPAA-compliant medical portal in under 5 months. Webtrivo's dedicated Flutter developers delivered the Android & iOS apps exactly on schedule, with beautiful UI and incredible security. Highly recommended!",
+      "rating": 5
+    },
+    {
+      "id": "test-3",
+      "name": "David Alaba",
+      "role": "Founder & CEO",
+      "company": "SaaSFlow CRM",
+      "content": "Working with Webtrivo was a masterclass in agile product delivery. Our customized sales pipelines are slick, responsive, and loved by our German logistic clients. The daily updates and transparent pricing were refreshing.",
+      "rating": 5
+    }
+  ],
+  "faqs": [
+    {
+      "id": "faq-1",
+      "question": "What is Webtrivo's typical project engagement and delivery model?",
+      "answer": "We adopt an Agile Scrum methodology. Projects are broken down into 2-week sprints with tangible deliverables. You receive a secure staging link to view live progress, daily standup status bulletins via Slack, and direct communication with a dedicated Project Manager.",
+      "category": "Process"
+    },
+    {
+      "id": "faq-2",
+      "question": "How do you guarantee security and intellectual property protection?",
+      "answer": "Before discussing any proprietary details, we sign a comprehensive Non-Disclosure Agreement (NDA). All code, designs, documentation, and database assets generated during our engagement belong 100% to you, backed by clear intellectual property transfer clauses in our master services agreement.",
+      "category": "Legal & Security"
+    },
+    {
+      "id": "faq-3",
+      "question": "Can I hire full-time dedicated developers from Webtrivo?",
+      "answer": "Yes! Our Dedicated Developers staffing model allows you to hire top 1% software engineers (frontend, backend, mobile, full-stack, or DevOps) on a monthly contract. They integrate natively into your Slack, GitHub, and Jira, working directly under your internal leadership.",
+      "category": "Staffing"
+    },
+    {
+      "id": "faq-4",
+      "question": "What happens after the project is deployed? Do you offer support?",
+      "answer": "Every product we deploy comes with a standard 90-day warranty covering bug fixes and server adjustments. Following that, we offer flexible Monthly Maintenance & Support packages that include server security patching, database optimization, analytics monitoring, and proactive feature updates.",
+      "category": "Support"
+    }
+  ],
+  "careers": [
+    {
+      "id": "job-1",
+      "title": "Senior React / Next.js Developer",
+      "department": "Frontend Engineering",
+      "location": "Remote (Global)",
+      "type": "Full-time",
+      "salary": "$4,500 - $6,500 / Month",
+      "experience": "5+ Years",
+      "description": "We are looking for an elite React & Next.js engineer who is passionate about pixel-perfect responsive layouts, performance optimization, and deep Framer Motion or React-Spring animations. You will build highly responsive SaaS dashboards, Web3 web apps, and customized client portals.",
+      "requirements": [
+        "Strong experience with React, Next.js (App Router), TypeScript, and Tailwind CSS.",
+        "Deep understanding of server-side rendering (SSR), incremental static regeneration (ISR), and Edge caching.",
+        "Proven record optimizing web vitals (Lighthouse scores, CLS, LCP, FID).",
+        "Experience writing robust end-to-end integration tests (Playwright/Jest).",
+        "Excellent written and verbal English communication."
+      ],
+      "benefits": [
+        "100% Remote flexibility with flexible working hours.",
+        "Paid annual leaves, sick leaves, and localized national holidays.",
+        "Annual hardware upgrade allowance ($1,500 budget).",
+        "Frequent team retreats and learning sponsorships (courses/certifications)."
+      ],
+      "active": true
+    },
+    {
+      "id": "job-2",
+      "title": "Senior Laravel / PHP Engineer",
+      "department": "Backend Engineering",
+      "location": "Remote (Global)",
+      "type": "Full-time",
+      "salary": "$4,000 - $6,000 / Month",
+      "experience": "5+ Years",
+      "description": "Join our backend department to build enterprise-scale REST/GraphQL APIs, multi-tenant CRM/ERP structures, and high-performance relational database layouts. You will take ownership of robust queue workers, billing pipelines, and server integrations.",
+      "requirements": [
+        "Advanced proficiency in modern PHP 8.x and Laravel 10/11 ecosystem.",
+        "Extensive experience with MySQL, PostgreSQL, Redis, and Elasticsearch.",
+        "Expertise in designing secure RESTful API architectures, OAuth, and webhooks.",
+        "Familiarity with server virtualization (Docker) and AWS deployment (EC2, RDS, S3, ECS).",
+        "Excellent Git workflow knowledge, including CI/CD automation pipelines."
+      ],
+      "benefits": [
+        "Remote working from anywhere in the world.",
+        "Structured salary appraisals every 12 months.",
+        "Co-working space membership reimbursement.",
+        "Collaborative work environment with international brands."
+      ],
+      "active": true
+    }
+  ],
+  "subscribers": [],
+  "settings": {
+    "companyName": "Webtrivo Technologies",
+    "tagline": "Building Digital Products That Scale",
+    "primaryEmail": "info@webtrivo.com",
+    "contactEmail": "ritesh2001stm@gmail.com",
+    "whatsappNumber": "+917004183842",
+    "phoneNumber": "+917004183842",
+    "address": "402, Elite Business Hub, Sector 62, Noida, India",
+    "workingHours": "Mon - Fri: 9:00 AM - 7:00 PM (IST)",
+    "seoTitle": "Webtrivo Technologies | Premium Software Agency & Digital Product Studio",
+    "seoDescription": "We help startups, SMBs, and enterprises build high-performance custom websites, mobile apps, CRM, ERP, and AI solutions. Book a free consultation today.",
+    "seoKeywords": "Custom software agency, Web development, iOS Android mobile apps, Enterprise ERP CRM, SaaS engineering, Webtrivo, hire developers",
+    "bookMeetingUrl": "https://calendly.com/webtrivo/consultation"
+  }
+}
