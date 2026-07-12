@@ -141,6 +141,7 @@ type FirebaseWebConfig = {
   storageBucket?: string;
   messagingSenderId?: string;
   appId?: string;
+  measurementId?: string;
 };
 
 type GaReport = {
@@ -157,6 +158,7 @@ const envFirebaseConfig: FirebaseWebConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string | undefined,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string | undefined,
   appId: import.meta.env.VITE_FIREBASE_APP_ID as string | undefined,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID as string | undefined,
 };
 
 const gaReportEndpoint = import.meta.env.VITE_GA4_REPORT_ENDPOINT as string | undefined;
@@ -232,6 +234,7 @@ function resolveFirebaseConfig() {
     storageBucket: envFirebaseConfig.storageBucket || storedConfig.storageBucket,
     messagingSenderId: envFirebaseConfig.messagingSenderId || storedConfig.messagingSenderId,
     appId: envFirebaseConfig.appId || storedConfig.appId,
+    measurementId: envFirebaseConfig.measurementId || storedConfig.measurementId,
   };
 }
 
@@ -1531,6 +1534,10 @@ function AdminSetupNotice({ onSaved }: { onSaved: () => void }) {
           <label>
             messagingSenderId
             <input value={config.messagingSenderId || ""} onChange={(event) => update("messagingSenderId", event.target.value)} />
+          </label>
+          <label>
+            measurementId
+            <input value={config.measurementId || ""} onChange={(event) => update("measurementId", event.target.value)} />
           </label>
         </div>
         <button className="admin-primary" type="button" onClick={save}>
