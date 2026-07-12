@@ -1487,6 +1487,7 @@ function Notice({ tone, children }: { tone: "error" | "info"; children: ReactNod
 
 function AdminSetupNotice({ onSaved }: { onSaved: () => void }) {
   const [config, setConfig] = useState<FirebaseWebConfig>(() => readStoredFirebaseConfig());
+  const [pastedConfig, setPastedConfig] = useState("");
   const [message, setMessage] = useState("");
 
   function update(field: keyof FirebaseWebConfig, value: string) {
@@ -1504,12 +1505,34 @@ function AdminSetupNotice({ onSaved }: { onSaved: () => void }) {
     onSaved();
   }
 
+  function fillFromPaste() {
+    const nextConfig = { ...config };
+    const fields: Array<keyof FirebaseWebConfig> = ["apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId", "measurementId"];
+    for (const field of fields) {
+      const match = pastedConfig.match(new RegExp(`${field}\\s*:\\s*["']([^"']+)["']`));
+      if (match) nextConfig[field] = match[1];
+    }
+    setConfig(nextConfig);
+    setMessage("Firebase snippet parsed. Review the fields, then save.");
+  }
+
   return (
     <div className="admin-login-page">
       <section className="admin-login-card">
         <h1>Firebase admin setup required</h1>
         <p>Add your Firebase web app config to enable Auth and Firestore. This does not create fake data; it only connects the admin to your real project.</p>
         {message && <Notice tone={message.includes("saved") ? "info" : "error"}>{message}</Notice>}
+        <label className="admin-paste-config">
+          Paste Firebase config snippet
+          <textarea
+            value={pastedConfig}
+            onChange={(event) => setPastedConfig(event.target.value)}
+            placeholder={'const firebaseConfig = {\n  apiKey: "...",\n  authDomain: "...",\n  projectId: "..."\n};'}
+          />
+        </label>
+        <button className="admin-secondary-action" type="button" onClick={fillFromPaste}>
+          Fill fields from pasted config
+        </button>
         <div className="admin-setup-grid">
           <label>
             apiKey
