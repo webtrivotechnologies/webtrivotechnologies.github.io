@@ -39,6 +39,7 @@ import {
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -53,14 +54,15 @@ import {
   type Firestore,
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
-import type { FormEvent, ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import type { DragEvent, FormEvent, ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type AdminPage = "dashboard" | "analytics" | "enquiries" | "content" | "settings";
 type AnalyticsTab = "overview" | "traffic" | "geographic" | "pages" | "conversions" | "devices";
 type ContentTab = "hero" | "services" | "portfolio" | "testimonials" | "faqs" | "contact" | "seo";
 type SettingsTab = "website" | "social" | "privacy" | "campaignBuilder" | "backup" | "admins";
-type DateRange = "today" | "7d" | "30d" | "custom";
+type DateRangePreset = "today" | "7d" | "30d" | "custom";
+type DateRange = { preset: DateRangePreset; startDate: string; endDate: string };
 
 type Enquiry = {
   id: string;
@@ -84,6 +86,8 @@ type ActivityItem = {
   action?: string;
   actor?: string;
   target?: string;
+  enquiryId?: string;
+  page?: AdminPage;
   createdAt?: unknown;
 };
 
@@ -98,6 +102,22 @@ type Campaign = {
   id: string;
   name?: string;
   url?: string;
+  createdAt?: unknown;
+};
+
+type AdminNotification = {
+  id: string;
+  title?: string;
+  message?: string;
+  read?: boolean;
+  enquiryId?: string;
+  page?: AdminPage;
+  createdAt?: unknown;
+};
+
+type NoteItem = {
+  id: string;
+  note?: string;
   createdAt?: unknown;
 };
 
@@ -181,12 +201,21 @@ function getFirebaseServices() {
   return servicesCache;
 }
 
-function dateFromRange(range: DateRange) {
+function defaultDateRange(): DateRange {
+  return { preset: "7d", startDate: "", endDate: "" };
+}
+
+function dateBoundsFromRange(range: DateRange) {
   const date = new Date();
-  if (range === "today") date.setHours(0, 0, 0, 0);
-  if (range === "7d") date.setDate(date.getDate() - 7);
-  if (range === "30d") date.setDate(date.getDate() - 30);
-  return date;
+  if (range.preset === "custom" && range.startDate) {
+    const start = new Date(`${range.startDate}T00:00:00`);
+    const end = range.endDate ? new Date(`${range.endDate}T23:59:59`) : undefined;
+    return { start, end };
+  }
+  if (range.preset === "today") date.setHours(0, 0, 0, 0);
+  if (range.preset === "7d") date.setDate(date.getDate() - 7);
+  if (range.preset === "30d") date.setDate(date.getDate() - 30);
+  return { start: date, end: undefined };
 }
 
 function snapshotId<T>(snapshot: QueryDocumentSnapshot): T & { id: string } {
@@ -200,6 +229,14 @@ function formatDate(value: unknown) {
   }
   if (typeof value === "string" || typeof value === "number") return new Date(value).toLocaleDateString();
   return "-";
+}
+
+function formatInputDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function searchable(value: unknown) {
+  return String(value ?? "").toLowerCase();
 }
 
 function countByType(items: ConversionItem[], type: string) {
@@ -226,8 +263,10 @@ export default function AdminDashboard() {
   const [page, setPage] = useState<AdminPage>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("webtrivo-admin-theme") === "dark" ? "dark" : "light"));
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedLead, setSelectedLead] = useState<Enquiry | null>(null);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   useEffect(() => {
     if (import.meta.env.DEV) {
@@ -240,11 +279,16 @@ export default function AdminDashboard() {
     });
   }, [services]);
 
+  useEffect(() => {
+    localStorage.setItem("webtrivo-admin-theme", theme);
+  }, [theme]);
+
   if (!services) return <AdminSetupNotice />;
   if (authLoading) return <AdminLoading />;
   if (!user) return <AdminLogin services={services} />;
 
   const currentLabel = navItems.find((item) => item.page === page)?.label || "Dashboard";
+  const { notifications, unreadCount, markNotificationRead, markAllNotificationsRead } = useNotifications(services, user);
 
   return (
     <div className={`admin-shell ${theme === "dark" ? "admin-dark" : ""}`}>
@@ -285,11 +329,31 @@ export default function AdminDashboard() {
           </div>
           <label className="admin-search">
             <Search size={17} />
-            <input placeholder="Search enquiries or content..." />
+            <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search enquiries or content..." />
           </label>
-          <button className="admin-icon-button" type="button" aria-label="Notifications">
-            <Bell size={18} />
-          </button>
+          <div className="admin-notification-wrap">
+            <button className="admin-icon-button" type="button" aria-label="Notifications" aria-expanded={notificationsOpen} onClick={() => setNotificationsOpen((value) => !value)}>
+              <Bell size={18} />
+              {unreadCount > 0 && <b>{unreadCount}</b>}
+            </button>
+            {notificationsOpen && (
+              <NotificationsPanel
+                notifications={notifications}
+                onClose={() => setNotificationsOpen(false)}
+                onMarkAll={markAllNotificationsRead}
+                onOpen={async (notification) => {
+                  await markNotificationRead(notification.id);
+                  setNotificationsOpen(false);
+                  if (notification.enquiryId) {
+                    setPage("enquiries");
+                    setSelectedLead({ id: notification.enquiryId });
+                  } else if (notification.page) {
+                    setPage(notification.page);
+                  }
+                }}
+              />
+            )}
+          </div>
           <button className="admin-icon-button" type="button" onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label="Toggle theme">
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
@@ -306,7 +370,7 @@ export default function AdminDashboard() {
         </header>
 
         <main className="admin-page">
-          <AdminWorkspace page={page} services={services} onSelectLead={setSelectedLead} />
+          <AdminWorkspace page={page} services={services} searchTerm={searchTerm} onPageChange={setPage} onSelectLead={setSelectedLead} />
         </main>
       </div>
 
@@ -316,13 +380,28 @@ export default function AdminDashboard() {
   );
 }
 
-function AdminWorkspace({ page, services, onSelectLead }: { page: AdminPage; services: FirebaseServices; onSelectLead: (lead: Enquiry) => void }) {
-  const [range, setRange] = useState<DateRange>("7d");
+function AdminWorkspace({
+  page,
+  services,
+  searchTerm,
+  onPageChange,
+  onSelectLead,
+}: {
+  page: AdminPage;
+  services: FirebaseServices;
+  searchTerm: string;
+  onPageChange: (page: AdminPage) => void;
+  onSelectLead: (lead: Enquiry) => void;
+}) {
+  const [range, setRange] = useState<DateRange>(() => defaultDateRange());
   const { data, loading, error, reload } = useAdminData(services, range);
 
-  if (page === "dashboard") return <DashboardHome data={data} range={range} onRangeChange={setRange} loading={loading} error={error} onExport={() => exportCsv(data.enquiries)} />;
+  if (page === "dashboard") return <DashboardHome data={data} range={range} onRangeChange={setRange} loading={loading} error={error} onSelectLead={(lead) => {
+    onPageChange("enquiries");
+    onSelectLead(lead);
+  }} onActivityOpen={(activity) => activity.page && onPageChange(activity.page)} onExport={() => exportCsv(data.enquiries)} />;
   if (page === "analytics") return <AnalyticsWorkspace data={data} range={range} onRangeChange={setRange} />;
-  if (page === "enquiries") return <EnquiriesCRM services={services} enquiries={data.enquiries} loading={loading} error={error} onSelectLead={onSelectLead} onReload={reload} onExport={() => exportCsv(data.enquiries)} />;
+  if (page === "enquiries") return <EnquiriesCRM services={services} enquiries={data.enquiries} searchTerm={searchTerm} loading={loading} error={error} onSelectLead={onSelectLead} onReload={reload} onExport={() => exportCsv(data.enquiries)} />;
   if (page === "content") return <ContentWorkspace services={services} />;
   return <SettingsWorkspace services={services} campaigns={data.campaigns} onReload={reload} />;
 }
@@ -335,16 +414,20 @@ function useAdminData(services: FirebaseServices, range: DateRange) {
 
   useEffect(() => {
     let ignore = false;
-    const start = dateFromRange(range);
+    const { start, end } = dateBoundsFromRange(range);
 
     async function load() {
       setLoading(true);
       setError(null);
+      if (import.meta.env.DEV) {
+        console.info("[admin] Firestore date range", { preset: range.preset, start, end });
+      }
       try {
+        const dateConstraints = end ? [where("createdAt", ">=", start), where("createdAt", "<=", end)] : [where("createdAt", ">=", start)];
         const [enquirySnapshots, activitySnapshots, conversionSnapshots, campaignSnapshots] = await Promise.all([
-          getDocs(query(collection(services.db, "enquiries"), where("createdAt", ">=", start), orderBy("createdAt", "desc"), limit(100))),
-          getDocs(query(collection(services.db, "activity"), orderBy("createdAt", "desc"), limit(20))),
-          getDocs(query(collection(services.db, "conversions"), where("createdAt", ">=", start), orderBy("createdAt", "desc"), limit(500))),
+          getDocs(query(collection(services.db, "enquiries"), ...dateConstraints, orderBy("createdAt", "desc"), limit(100))),
+          getDocs(query(collection(services.db, "activity"), ...dateConstraints, orderBy("createdAt", "desc"), limit(20))),
+          getDocs(query(collection(services.db, "conversions"), ...dateConstraints, orderBy("createdAt", "desc"), limit(500))),
           getDocs(query(collection(services.db, "campaigns"), orderBy("createdAt", "desc"), limit(50))),
         ]);
 
@@ -386,6 +469,104 @@ function exportCsv(enquiries: Enquiry[]) {
   URL.revokeObjectURL(url);
 }
 
+function exportJson(filename: string, payload: unknown) {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function useNotifications(services: FirebaseServices, user: User | null) {
+  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    let ignore = false;
+    async function load() {
+      const snapshots = await getDocs(query(collection(services.db, "notifications"), orderBy("createdAt", "desc"), limit(20)));
+      if (!ignore) setNotifications(snapshots.docs.map((item) => snapshotId<AdminNotification>(item)));
+    }
+    load().catch((error) => {
+      if (import.meta.env.DEV) console.warn("[admin] Unable to load notifications", error);
+    });
+    return () => {
+      ignore = true;
+    };
+  }, [services, user]);
+
+  async function markNotificationRead(id: string) {
+    await updateDoc(doc(services.db, "notifications", id), { read: true, readAt: serverTimestamp() });
+    setNotifications((current) => current.map((item) => (item.id === id ? { ...item, read: true } : item)));
+  }
+
+  async function markAllNotificationsRead() {
+    await Promise.all(notifications.filter((item) => !item.read).map((item) => updateDoc(doc(services.db, "notifications", item.id), { read: true, readAt: serverTimestamp() })));
+    setNotifications((current) => current.map((item) => ({ ...item, read: true })));
+  }
+
+  return {
+    notifications,
+    unreadCount: notifications.filter((item) => !item.read).length,
+    markNotificationRead,
+    markAllNotificationsRead,
+  };
+}
+
+function NotificationsPanel({
+  notifications,
+  onClose,
+  onMarkAll,
+  onOpen,
+}: {
+  notifications: AdminNotification[];
+  onClose: () => void;
+  onMarkAll: () => void;
+  onOpen: (notification: AdminNotification) => void;
+}) {
+  const panelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function onPointerDown(event: PointerEvent) {
+      if (panelRef.current && !panelRef.current.contains(event.target as Node)) onClose();
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="admin-notification-panel" ref={panelRef}>
+      <header>
+        <strong>Notifications</strong>
+        <button type="button" onClick={onMarkAll} disabled={!notifications.some((item) => !item.read)}>
+          Mark all read
+        </button>
+      </header>
+      {notifications.length ? (
+        <div className="notification-list">
+          {notifications.map((notification) => (
+            <button className={notification.read ? "" : "unread"} type="button" key={notification.id} onClick={() => onOpen(notification)}>
+              <strong>{notification.title || "Notification"}</strong>
+              <span>{notification.message || formatDate(notification.createdAt)}</span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <EmptyState title="No notifications" message="Unread badges only appear when Firestore notification documents exist." compact />
+      )}
+    </div>
+  );
+}
+
 function PageHeader({ title, description, action, onAction }: { title: string; description: string; action?: string; onAction?: () => void }) {
   return (
     <div className="admin-page-header">
@@ -402,7 +583,25 @@ function PageHeader({ title, description, action, onAction }: { title: string; d
   );
 }
 
-function DashboardHome({ data, range, onRangeChange, loading, error, onExport }: { data: AdminData; range: DateRange; onRangeChange: (range: DateRange) => void; loading: boolean; error: string | null; onExport: () => void }) {
+function DashboardHome({
+  data,
+  range,
+  onRangeChange,
+  loading,
+  error,
+  onSelectLead,
+  onActivityOpen,
+  onExport,
+}: {
+  data: AdminData;
+  range: DateRange;
+  onRangeChange: (range: DateRange) => void;
+  loading: boolean;
+  error: string | null;
+  onSelectLead: (lead: Enquiry) => void;
+  onActivityOpen: (activity: ActivityItem) => void;
+  onExport: () => void;
+}) {
   return (
     <>
       <PageHeader title="Dashboard" description="Live operational view of connected Firestore data and GA4 setup state." action="Export CSV" onAction={onExport} />
@@ -419,10 +618,10 @@ function DashboardHome({ data, range, onRangeChange, loading, error, onExport }:
       </div>
       <div className="admin-two-column">
         <Panel title="Recent enquiries">
-          <RecentEnquiries enquiries={data.enquiries} loading={loading} />
+          <RecentEnquiries enquiries={data.enquiries} loading={loading} onSelectLead={onSelectLead} />
         </Panel>
         <Panel title="Recent activity">
-          <ActivityFeed items={data.activities} loading={loading} />
+          <ActivityFeed items={data.activities} loading={loading} onOpen={onActivityOpen} />
         </Panel>
       </div>
     </>
@@ -455,25 +654,63 @@ function IntegrationBanner() {
     <div className="admin-ga-banner">
       <BarChart3 size={18} />
       <span>{gaReportEndpoint ? "GA4 reporting endpoint configured." : "Google Analytics is not connected yet."}</span>
-      {!gaReportEndpoint && <a>Connect GA4 through a secure Cloud Function</a>}
+      {!gaReportEndpoint && (
+        <a href="https://developers.google.com/analytics/devguides/reporting/data/v1" target="_blank" rel="noreferrer">
+          Connect GA4 through a secure Cloud Function
+        </a>
+      )}
     </div>
   );
 }
 
 function DateRangeFilter({ range, onChange }: { range: DateRange; onChange: (range: DateRange) => void }) {
+  const [customStart, setCustomStart] = useState(range.startDate);
+  const [customEnd, setCustomEnd] = useState(range.endDate);
+
+  function setPreset(preset: DateRangePreset) {
+    if (preset === "custom") {
+      const end = formatInputDate(new Date());
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 7);
+      const start = formatInputDate(startDate);
+      setCustomStart(range.startDate || start);
+      setCustomEnd(range.endDate || end);
+      onChange({ preset, startDate: range.startDate || start, endDate: range.endDate || end });
+      return;
+    }
+    onChange({ preset, startDate: "", endDate: "" });
+  }
+
   return (
-    <div className="admin-filterbar">
-      {[
-        ["today", "Today"],
-        ["7d", "7 days"],
-        ["30d", "30 days"],
-        ["custom", "Custom"],
-      ].map(([value, label]) => (
-        <button className={range === value ? "active" : ""} type="button" key={value} onClick={() => onChange(value as DateRange)}>
-          {label}
-        </button>
-      ))}
-    </div>
+    <>
+      <div className="admin-filterbar">
+        {[
+          ["today", "Today"],
+          ["7d", "7 days"],
+          ["30d", "30 days"],
+          ["custom", "Custom"],
+        ].map(([value, label]) => (
+          <button className={range.preset === value ? "active" : ""} type="button" key={value} onClick={() => setPreset(value as DateRangePreset)}>
+            {label}
+          </button>
+        ))}
+      </div>
+      {range.preset === "custom" && (
+        <div className="admin-custom-range">
+          <label>
+            Start
+            <input type="date" value={customStart} onChange={(event) => setCustomStart(event.target.value)} />
+          </label>
+          <label>
+            End
+            <input type="date" value={customEnd} onChange={(event) => setCustomEnd(event.target.value)} />
+          </label>
+          <button className="admin-primary" type="button" onClick={() => onChange({ preset: "custom", startDate: customStart, endDate: customEnd })}>
+            Apply
+          </button>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -520,7 +757,12 @@ function useGaReport(tab: AnalyticsTab, range: DateRange) {
     async function load() {
       setLoading(true);
       try {
-        const response = await fetch(`${gaReportEndpoint}?tab=${tab}&range=${range}`);
+        const params = new URLSearchParams({ tab, range: range.preset });
+        if (range.preset === "custom") {
+          params.set("startDate", range.startDate);
+          params.set("endDate", range.endDate);
+        }
+        const response = await fetch(`${gaReportEndpoint}?${params.toString()}`);
         if (!response.ok) throw new Error(`GA4 endpoint returned ${response.status}`);
         const body = (await response.json()) as GaReport;
         if (!ignore) setReport({ connected: true, rows: body.rows || [], metrics: body.metrics || {} });
@@ -539,29 +781,84 @@ function useGaReport(tab: AnalyticsTab, range: DateRange) {
   return { report, loading };
 }
 
-function EnquiriesCRM({ services, enquiries, loading, error, onSelectLead, onReload, onExport }: { services: FirebaseServices; enquiries: Enquiry[]; loading: boolean; error: string | null; onSelectLead: (lead: Enquiry) => void; onReload: () => void; onExport: () => void }) {
+function EnquiriesCRM({
+  services,
+  enquiries,
+  searchTerm,
+  loading,
+  error,
+  onSelectLead,
+  onReload,
+  onExport,
+}: {
+  services: FirebaseServices;
+  enquiries: Enquiry[];
+  searchTerm: string;
+  loading: boolean;
+  error: string | null;
+  onSelectLead: (lead: Enquiry) => void;
+  onReload: () => void;
+  onExport: () => void;
+}) {
   const [view, setView] = useState<"table" | "kanban">("table");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("");
+  const sources = Array.from(new Set(enquiries.map((lead) => lead.source).filter(Boolean))) as string[];
+  const filteredEnquiries = enquiries.filter((lead) => {
+    const matchesStatus = !statusFilter || (lead.status || "New") === statusFilter;
+    const matchesSource = !sourceFilter || lead.source === sourceFilter;
+    const needle = searchTerm.trim().toLowerCase();
+    const matchesSearch =
+      !needle ||
+      [lead.id, lead.name, lead.company, lead.service, lead.source, lead.email, lead.phone].some((value) => searchable(value).includes(needle));
+    return matchesStatus && matchesSource && matchesSearch;
+  });
+
   return (
     <>
       <PageHeader title="Enquiries" description="Live Firestore enquiries with status updates persisted back to the database." action="Bulk export" onAction={onExport} />
       <div className="admin-filterbar">
-        <button>
+        <label>
           <Filter size={15} /> Status
+          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+            <option value="">All statuses</option>
+            {["New", "Contacted", "Qualified", "Proposal Sent", "Negotiation", "Won", "Lost"].map((status) => (
+              <option key={status}>{status}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Source
+          <select value={sourceFilter} onChange={(event) => setSourceFilter(event.target.value)}>
+            <option value="">All sources</option>
+            {sources.map((source) => (
+              <option key={source}>{source}</option>
+            ))}
+          </select>
+        </label>
+        <button className="ghost" onClick={() => {
+          setStatusFilter("");
+          setSourceFilter("");
+        }}>
+          Clear all
         </button>
-        <button>Source</button>
-        <button>Date range</button>
-        <button className="ghost">Clear all</button>
         <button className="active" onClick={() => setView(view === "table" ? "kanban" : "table")}>
           {view === "table" ? "Kanban view" : "Table view"}
         </button>
       </div>
       {error && <Notice tone="error">{error}</Notice>}
-      {view === "table" ? <LeadTable services={services} enquiries={enquiries} loading={loading} onSelectLead={onSelectLead} onReload={onReload} /> : <Kanban enquiries={enquiries} />}
+      {view === "table" ? (
+        <LeadTable services={services} enquiries={filteredEnquiries} loading={loading} onSelectLead={onSelectLead} onReload={onReload} />
+      ) : (
+        <Kanban services={services} enquiries={filteredEnquiries} onReload={onReload} />
+      )}
     </>
   );
 }
 
 function LeadTable({ services, enquiries, loading, onSelectLead, onReload }: { services: FirebaseServices; enquiries: Enquiry[]; loading: boolean; onSelectLead: (lead: Enquiry) => void; onReload: () => void }) {
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
   if (loading) return <LoadingPanel label="Loading Firestore enquiries..." />;
   if (!enquiries.length) return <EmptyState title="No enquiries yet" message="When the public contact form writes to the Firestore enquiries collection, rows will appear here." />;
 
@@ -570,59 +867,110 @@ function LeadTable({ services, enquiries, loading, onSelectLead, onReload }: { s
     onReload();
   }
 
+  async function bulkStatus(status: string) {
+    await Promise.all(selectedIds.map((id) => updateDoc(doc(services.db, "enquiries", id), { status, updatedAt: serverTimestamp() })));
+    setSelectedIds([]);
+    onReload();
+  }
+
+  const selectedEnquiries = enquiries.filter((lead) => selectedIds.includes(lead.id));
+
   return (
-    <div className="admin-table-wrap">
-      <table className="admin-table">
-        <thead>
-          <tr>
-            {["Lead ID", "Name", "Company", "Service", "Source", "Status", "Created", "Follow-up", ""].map((head) => (
-              <th key={head}>{head}</th>
+    <>
+      {selectedIds.length > 0 && (
+        <div className="admin-bulkbar">
+          <strong>{selectedIds.length} selected</strong>
+          <select onChange={(event) => event.target.value && bulkStatus(event.target.value)} defaultValue="">
+            <option value="">Change status</option>
+            {["New", "Contacted", "Qualified", "Proposal Sent", "Negotiation", "Won", "Lost"].map((status) => (
+              <option key={status}>{status}</option>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {enquiries.map((lead) => (
-            <tr key={lead.id}>
-              <td>{lead.id}</td>
-              <td>{lead.name || "-"}</td>
-              <td>{lead.company || "-"}</td>
-              <td>{lead.service || "-"}</td>
-              <td>{lead.source ? <Badge type={lead.source}>{lead.source}</Badge> : "-"}</td>
-              <td>
-                <select defaultValue={lead.status || "New"} onChange={(event) => updateStatus(lead, event.target.value)}>
-                  {["New", "Contacted", "Qualified", "Proposal Sent", "Negotiation", "Won", "Lost"].map((status) => (
-                    <option key={status}>{status}</option>
-                  ))}
-                </select>
-              </td>
-              <td>{formatDate(lead.createdAt)}</td>
-              <td>{formatDate(lead.followUpAt)}</td>
-              <td>
-                <button className="admin-link-button" onClick={() => onSelectLead(lead)}>
-                  Details
-                </button>
-              </td>
+          </select>
+          <button type="button" onClick={() => exportCsv(selectedEnquiries)}>
+            Export selected
+          </button>
+          <button type="button" onClick={() => setSelectedIds([])}>
+            Clear
+          </button>
+        </div>
+      )}
+      <div className="admin-table-wrap">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.length === enquiries.length}
+                  onChange={(event) => setSelectedIds(event.target.checked ? enquiries.map((lead) => lead.id) : [])}
+                  aria-label="Select all enquiries"
+                />
+              </th>
+              {["Lead ID", "Name", "Company", "Service", "Source", "Status", "Created", "Follow-up", ""].map((head) => (
+                <th key={head}>{head}</th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="admin-pagination">Rows loaded from Firestore: {enquiries.length}</div>
-    </div>
+          </thead>
+          <tbody>
+            {enquiries.map((lead) => (
+              <tr key={lead.id}>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(lead.id)}
+                    onChange={(event) =>
+                      setSelectedIds((current) => (event.target.checked ? [...current, lead.id] : current.filter((id) => id !== lead.id)))
+                    }
+                    aria-label={`Select ${lead.name || lead.id}`}
+                  />
+                </td>
+                <td>{lead.id}</td>
+                <td>{lead.name || "-"}</td>
+                <td>{lead.company || "-"}</td>
+                <td>{lead.service || "-"}</td>
+                <td>{lead.source ? <Badge type={lead.source}>{lead.source}</Badge> : "-"}</td>
+                <td>
+                  <select defaultValue={lead.status || "New"} onChange={(event) => updateStatus(lead, event.target.value)}>
+                    {["New", "Contacted", "Qualified", "Proposal Sent", "Negotiation", "Won", "Lost"].map((status) => (
+                      <option key={status}>{status}</option>
+                    ))}
+                  </select>
+                </td>
+                <td>{formatDate(lead.createdAt)}</td>
+                <td>{formatDate(lead.followUpAt)}</td>
+                <td>
+                  <button className="admin-link-button" onClick={() => onSelectLead(lead)}>
+                    Details
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="admin-pagination">Rows loaded from Firestore: {enquiries.length}</div>
+      </div>
+    </>
   );
 }
 
-function Kanban({ enquiries }: { enquiries: Enquiry[] }) {
+function Kanban({ services, enquiries, onReload }: { services: FirebaseServices; enquiries: Enquiry[]; onReload: () => void }) {
   const columns = ["New", "Contacted", "Qualified", "Proposal Sent", "Negotiation", "Won", "Lost"];
   if (!enquiries.length) return <EmptyState title="No enquiries for Kanban" message="Kanban cards are created from real Firestore enquiry documents." />;
+  async function dropLead(event: DragEvent<HTMLElement>, status: string) {
+    const id = event.dataTransfer.getData("text/plain");
+    if (!id) return;
+    await updateDoc(doc(services.db, "enquiries", id), { status, updatedAt: serverTimestamp() });
+    onReload();
+  }
   return (
     <div className="kanban-board">
       {columns.map((column) => (
-        <section key={column}>
+        <section key={column} onDragOver={(event) => event.preventDefault()} onDrop={(event) => dropLead(event, column)}>
           <h3>{column}</h3>
           {enquiries
             .filter((lead) => (lead.status || "New") === column)
             .map((lead) => (
-              <article className="kanban-card" key={lead.id}>
+              <article className="kanban-card" key={lead.id} draggable onDragStart={(event) => event.dataTransfer.setData("text/plain", lead.id)}>
                 <strong>{lead.name || lead.id}</strong>
                 <span>{lead.company || lead.service || "-"}</span>
                 {lead.source && <Badge type={lead.source}>{lead.source}</Badge>}
@@ -635,20 +983,58 @@ function Kanban({ enquiries }: { enquiries: Enquiry[] }) {
 }
 
 function LeadDrawer({ services, lead, onClose }: { services: FirebaseServices; lead: Enquiry; onClose: () => void }) {
+  const [currentLead, setCurrentLead] = useState(lead);
   const [note, setNote] = useState("");
+  const [notes, setNotes] = useState<NoteItem[]>([]);
+  const [followUpDate, setFollowUpDate] = useState("");
+
+  useEffect(() => {
+    let ignore = false;
+    async function load() {
+      const leadSnapshot = await getDoc(doc(services.db, "enquiries", lead.id));
+      if (!ignore && leadSnapshot.exists()) setCurrentLead({ id: leadSnapshot.id, ...leadSnapshot.data() } as Enquiry);
+      const noteSnapshots = await getDocs(query(collection(services.db, "enquiries", lead.id, "notes"), orderBy("createdAt", "desc"), limit(20)));
+      if (!ignore) setNotes(noteSnapshots.docs.map((item) => snapshotId<NoteItem>(item)));
+    }
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, [services, lead.id]);
 
   async function saveNote() {
     if (!note.trim()) return;
     await addDoc(collection(services.db, "enquiries", lead.id, "notes"), { note, createdAt: serverTimestamp() });
+    const noteSnapshots = await getDocs(query(collection(services.db, "enquiries", lead.id, "notes"), orderBy("createdAt", "desc"), limit(20)));
+    setNotes(noteSnapshots.docs.map((item) => snapshotId<NoteItem>(item)));
     setNote("");
   }
 
+  async function saveFollowUp() {
+    if (!followUpDate) return;
+    await updateDoc(doc(services.db, "enquiries", lead.id), { followUpAt: new Date(`${followUpDate}T09:00:00`), updatedAt: serverTimestamp() });
+    setCurrentLead((current) => ({ ...current, followUpAt: followUpDate }));
+  }
+
+  function openWhatsApp() {
+    const phone = String(currentLead.phone || "").replace(/\D/g, "");
+    if (phone) window.open(`https://wa.me/${phone}`, "_blank", "noopener,noreferrer");
+  }
+
+  function sendEmail() {
+    if (currentLead.email) window.location.href = `mailto:${currentLead.email}`;
+  }
+
+  function copyContact() {
+    navigator.clipboard.writeText([currentLead.name, currentLead.email, currentLead.phone].filter(Boolean).join(" | "));
+  }
+
   return (
-    <aside className="lead-drawer" role="dialog" aria-label={`${lead.name || lead.id} lead details`}>
+    <aside className="lead-drawer" role="dialog" aria-label={`${currentLead.name || currentLead.id} lead details`}>
       <header>
         <div>
-          <h2>{lead.name || "Enquiry"}</h2>
-          <p>{lead.company || lead.service || lead.email || lead.id}</p>
+          <h2>{currentLead.name || "Enquiry"}</h2>
+          <p>{currentLead.company || currentLead.service || currentLead.email || currentLead.id}</p>
         </div>
         <button type="button" onClick={onClose} aria-label="Close lead details">
           <X size={20} />
@@ -656,21 +1042,30 @@ function LeadDrawer({ services, lead, onClose }: { services: FirebaseServices; l
       </header>
       <section>
         <h3>Contact</h3>
-        <p>Email: {lead.email || "-"}</p>
-        <p>Phone: {lead.phone || "-"}</p>
+        <p>Email: {currentLead.email || "-"}</p>
+        <p>Phone: {currentLead.phone || "-"}</p>
       </section>
       <section>
         <h3>Attribution</h3>
-        <p>Source: {lead.source || "-"}</p>
+        <p>Source: {currentLead.source || "-"}</p>
+      </section>
+      <section>
+        <h3>Follow-up</h3>
+        <input type="date" value={followUpDate} onChange={(event) => setFollowUpDate(event.target.value)} />
+        <button type="button" onClick={saveFollowUp}>Save follow-up date</button>
       </section>
       <section>
         <h3>Notes</h3>
         <textarea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Add a real note to Firestore..." />
+        <div className="admin-note-list">
+          {notes.length ? notes.map((item) => <article key={item.id}>{item.note || "-"}<span>{formatDate(item.createdAt)}</span></article>) : <p>No notes saved yet.</p>}
+        </div>
       </section>
       <div className="drawer-actions">
         <button onClick={saveNote}>Save Note</button>
-        <button>Open WhatsApp</button>
-        <button>Send Email</button>
+        <button onClick={openWhatsApp} disabled={!currentLead.phone}>Open WhatsApp</button>
+        <button onClick={sendEmail} disabled={!currentLead.email}>Send Email</button>
+        <button onClick={copyContact}>Copy contact</button>
       </div>
     </aside>
   );
@@ -795,7 +1190,7 @@ function SettingsWorkspace({ services, campaigns, onReload }: { services: Fireba
       <PageHeader title="Settings" description="Website settings, campaign tooling, exports, and admin access setup." />
       <UnderlineTabs tabs={settingsTabs} active={activeTab} onChange={setActiveTab} />
       {activeTab === "campaignBuilder" && <CampaignBuilder services={services} campaigns={campaigns} onReload={onReload} />}
-      {activeTab === "backup" && <BackupExport campaigns={campaigns} />}
+      {activeTab === "backup" && <BackupExport services={services} campaigns={campaigns} />}
       {activeTab === "admins" && <AdminUsers />}
       {["website", "social", "privacy"].includes(activeTab) && <SettingsForm services={services} activeTab={activeTab as "website" | "social" | "privacy"} />}
     </>
@@ -840,22 +1235,41 @@ function CampaignBuilder({ services, campaigns, onReload }: { services: Firebase
   const [source, setSource] = useState("");
   const [medium, setMedium] = useState("");
   const [name, setName] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState("");
   const generatedUrl = useMemo(() => {
-    const url = new URL(baseUrl || "https://webtrivotechnologies.github.io/");
-    if (source) url.searchParams.set("utm_source", source);
-    if (medium) url.searchParams.set("utm_medium", medium);
-    if (name) url.searchParams.set("utm_campaign", name);
-    return url.toString();
+    try {
+      const url = new URL(baseUrl || "https://webtrivotechnologies.github.io/");
+      if (source) url.searchParams.set("utm_source", source);
+      if (medium) url.searchParams.set("utm_medium", medium);
+      if (name) url.searchParams.set("utm_campaign", name);
+      return url.toString();
+    } catch {
+      return "";
+    }
   }, [baseUrl, source, medium, name]);
 
   async function save() {
+    if (!generatedUrl || !name.trim()) {
+      setError("Add a valid website URL and campaign name before saving.");
+      return;
+    }
+    setError("");
     await addDoc(collection(services.db, "campaigns"), { name, url: generatedUrl, source, medium, createdAt: serverTimestamp() });
     onReload();
+  }
+
+  async function copyUrl() {
+    if (!generatedUrl) return;
+    await navigator.clipboard.writeText(generatedUrl);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1400);
   }
 
   return (
     <>
       <PageHeader title="Campaign URL Builder" description="Generate UTM URLs and persist saved campaigns to Firestore." action="Save campaign" onAction={save} />
+      {error && <Notice tone="error">{error}</Notice>}
       <div className="builder-grid">
         <form className="admin-form">
           <label>
@@ -876,9 +1290,9 @@ function CampaignBuilder({ services, campaigns, onReload }: { services: Firebase
           </label>
         </form>
         <Panel title="Live URL preview">
-          <code>{generatedUrl}</code>
-          <button className="admin-primary" onClick={() => navigator.clipboard.writeText(generatedUrl)}>
-            <Copy size={16} /> Copy URL
+          <code>{generatedUrl || "Enter a valid URL to generate a campaign link."}</code>
+          <button className="admin-primary" onClick={copyUrl} disabled={!generatedUrl}>
+            <Copy size={16} /> {copied ? "Copied" : "Copy URL"}
           </button>
         </Panel>
       </div>
@@ -887,17 +1301,32 @@ function CampaignBuilder({ services, campaigns, onReload }: { services: Firebase
   );
 }
 
-function BackupExport({ campaigns }: { campaigns: Campaign[] }) {
+function BackupExport({ services, campaigns }: { services: FirebaseServices; campaigns: Campaign[] }) {
+  async function exportCollection(collectionName: string) {
+    const snapshots = await getDocs(collection(services.db, collectionName));
+    exportJson(`${collectionName}.json`, snapshots.docs.map((item) => ({ id: item.id, ...item.data() })));
+  }
+
   return (
     <div className="admin-kpi-grid three">
-      {["Enquiries CSV", "Content JSON backup", "Campaign report"].map((item) => (
-        <article className="admin-export-card" key={item}>
-          <Download size={20} />
-          <strong>{item}</strong>
-          <span>{item === "Campaign report" ? `${campaigns.length} Firestore campaigns available` : "Export uses live Firestore data only"}</span>
-          <button>Export</button>
-        </article>
-      ))}
+      <article className="admin-export-card">
+        <Download size={20} />
+        <strong>Enquiries JSON</strong>
+        <span>Exports the current Firestore enquiries collection.</span>
+        <button onClick={() => exportCollection("enquiries")}>Export</button>
+      </article>
+      <article className="admin-export-card">
+        <Download size={20} />
+        <strong>Content JSON backup</strong>
+        <span>Exports the Firestore content collection.</span>
+        <button onClick={() => exportCollection("content")}>Export</button>
+      </article>
+      <article className="admin-export-card">
+        <Download size={20} />
+        <strong>Campaign report</strong>
+        <span>{campaigns.length} Firestore campaigns available.</span>
+        <button onClick={() => exportJson("campaigns.json", campaigns)}>Export</button>
+      </article>
     </div>
   );
 }
@@ -910,35 +1339,35 @@ function AdminUsers() {
   );
 }
 
-function RecentEnquiries({ enquiries, loading }: { enquiries: Enquiry[]; loading: boolean }) {
+function RecentEnquiries({ enquiries, loading, onSelectLead }: { enquiries: Enquiry[]; loading: boolean; onSelectLead: (lead: Enquiry) => void }) {
   if (loading) return <LoadingPanel label="Loading recent enquiries..." />;
   if (!enquiries.length) return <EmptyState title="No recent enquiries" message="Real enquiry documents from Firestore will appear here." compact />;
   return (
     <div className="recent-list">
       {enquiries.slice(0, 5).map((lead) => (
-        <article key={lead.id}>
+        <button type="button" key={lead.id} onClick={() => onSelectLead(lead)}>
           <div>
             <strong>{lead.name || lead.id}</strong>
             <span>{lead.service || lead.email || "-"}</span>
           </div>
           {lead.source && <Badge type={lead.source}>{lead.source}</Badge>}
           {lead.status && <Badge type={lead.status}>{lead.status}</Badge>}
-        </article>
+        </button>
       ))}
     </div>
   );
 }
 
-function ActivityFeed({ items, loading }: { items: ActivityItem[]; loading: boolean }) {
+function ActivityFeed({ items, loading, onOpen }: { items: ActivityItem[]; loading: boolean; onOpen: (item: ActivityItem) => void }) {
   if (loading) return <LoadingPanel label="Loading recent activity..." />;
   if (!items.length) return <EmptyState title="No activity yet" message="Activity documents from Firestore will appear here." compact />;
   return (
     <div className="activity-feed">
       {items.map((item) => (
-        <article key={item.id}>
+        <button type="button" key={item.id} onClick={() => onOpen(item)}>
           {item.action || "Activity"}
           <span>{formatDate(item.createdAt)}</span>
-        </article>
+        </button>
       ))}
     </div>
   );

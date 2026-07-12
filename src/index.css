@@ -2684,7 +2684,11 @@ h3 {
 .admin-form textarea,
 .lead-drawer select,
 .lead-drawer textarea,
+.lead-drawer input,
 .admin-table select,
+.admin-bulkbar select,
+.admin-custom-range input,
+.admin-filterbar select,
 .admin-login-card input {
   width: 100%;
   border: 1px solid var(--admin-border);
@@ -2717,6 +2721,13 @@ h3 {
   position: relative;
 }
 
+.admin-icon-button:disabled,
+.admin-primary:disabled,
+.drawer-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .admin-icon-button b {
   position: absolute;
   top: -5px;
@@ -2735,6 +2746,39 @@ h3 {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.admin-notification-wrap {
+  position: relative;
+}
+
+.admin-notification-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 70;
+  width: min(380px, calc(100vw - 28px));
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--admin-surface);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18);
+}
+
+.admin-notification-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.admin-notification-panel header button {
+  border: 0;
+  color: var(--admin-primary);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 900;
 }
 
 .admin-user > span,
@@ -2878,8 +2922,35 @@ h3 {
 .admin-filterbar {
   display: flex;
   flex-wrap: wrap;
+  align-items: end;
   gap: 8px;
   margin-bottom: 18px;
+}
+
+.admin-filterbar label,
+.admin-custom-range label {
+  display: grid;
+  gap: 5px;
+  color: var(--admin-muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.admin-filterbar label {
+  grid-template-columns: auto minmax(150px, 1fr);
+  align-items: center;
+}
+
+.admin-custom-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 12px;
+  margin: -6px 0 18px;
+  background: var(--admin-surface);
 }
 
 .admin-tabs {
@@ -3057,6 +3128,29 @@ h3 {
   margin-bottom: 18px;
 }
 
+.admin-bulkbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: var(--admin-surface);
+}
+
+.admin-bulkbar button {
+  min-height: 36px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--admin-text);
+  background: var(--admin-surface);
+  cursor: pointer;
+  font-weight: 800;
+}
+
 .admin-table select {
   min-width: 150px;
 }
@@ -3147,7 +3241,10 @@ h3 {
 
 .recent-list article,
 .activity-feed article,
-.notification-list article {
+.notification-list article,
+.recent-list button,
+.activity-feed button,
+.notification-list button {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3155,6 +3252,19 @@ h3 {
   border: 1px solid var(--admin-border);
   border-radius: 8px;
   padding: 10px;
+  color: var(--admin-text);
+  background: var(--admin-surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.notification-list button {
+  width: 100%;
+}
+
+.notification-list button.unread {
+  border-color: rgba(37, 99, 235, 0.28);
+  background: rgba(37, 99, 235, 0.08);
 }
 
 .recent-list strong,
@@ -3212,6 +3322,37 @@ h3 {
 .lead-drawer textarea {
   min-height: 120px;
   resize: vertical;
+}
+
+.lead-drawer section button {
+  margin-top: 8px;
+  min-height: 36px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--admin-text);
+  background: var(--admin-surface);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.admin-note-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.admin-note-list article {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.admin-note-list span {
+  color: var(--admin-muted);
+  font-size: 12px;
 }
 
 .lead-drawer header {
