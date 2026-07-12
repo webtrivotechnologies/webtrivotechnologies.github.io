@@ -3471,6 +3471,22 @@ h3 {
   font-weight: 900;
 }
 
+.admin-setup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.admin-help-link {
+  color: var(--admin-primary, #2563eb);
+  font-weight: 900;
+}
+
+.admin-login-card small {
+  color: var(--admin-muted, #64748b);
+  line-height: 1.5;
+}
+
 .admin-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -3590,6 +3606,10 @@ h3 {
 
   .drawer-actions,
   .permission-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-setup-grid {
     grid-template-columns: 1fr;
   }
 

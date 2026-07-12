@@ -134,6 +134,15 @@ type FirebaseServices = {
   db: Firestore;
 };
 
+type FirebaseWebConfig = {
+  apiKey?: string;
+  authDomain?: string;
+  projectId?: string;
+  storageBucket?: string;
+  messagingSenderId?: string;
+  appId?: string;
+};
+
 type GaReport = {
   connected: boolean;
   rows: string[][];
@@ -141,7 +150,7 @@ type GaReport = {
   message?: string;
 };
 
-const firebaseConfig = {
+const envFirebaseConfig: FirebaseWebConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY as string | undefined,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string | undefined,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID as string | undefined,
@@ -152,7 +161,7 @@ const firebaseConfig = {
 
 const gaReportEndpoint = import.meta.env.VITE_GA4_REPORT_ENDPOINT as string | undefined;
 const adminUsersEndpoint = import.meta.env.VITE_ADMIN_USERS_ENDPOINT as string | undefined;
-const firebaseReady = Boolean(firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId && firebaseConfig.appId);
+const firebaseConfigStorageKey = "webtrivo-firebase-config";
 
 let servicesCache: FirebaseServices | null = null;
 
@@ -193,12 +202,37 @@ const settingsTabs: Array<{ id: SettingsTab; label: string }> = [
 ];
 
 function getFirebaseServices() {
-  if (!firebaseReady) return null;
+  const firebaseConfig = resolveFirebaseConfig();
+  if (!isFirebaseConfigReady(firebaseConfig)) return null;
   if (!servicesCache) {
     const app = initializeApp(firebaseConfig);
     servicesCache = { app, auth: getAuth(app), db: getFirestore(app) };
   }
   return servicesCache;
+}
+
+function isFirebaseConfigReady(config: FirebaseWebConfig) {
+  return Boolean(config.apiKey && config.authDomain && config.projectId && config.appId);
+}
+
+function readStoredFirebaseConfig() {
+  try {
+    return JSON.parse(localStorage.getItem(firebaseConfigStorageKey) || "{}") as FirebaseWebConfig;
+  } catch {
+    return {};
+  }
+}
+
+function resolveFirebaseConfig() {
+  const storedConfig = readStoredFirebaseConfig();
+  return {
+    apiKey: envFirebaseConfig.apiKey || storedConfig.apiKey,
+    authDomain: envFirebaseConfig.authDomain || storedConfig.authDomain,
+    projectId: envFirebaseConfig.projectId || storedConfig.projectId,
+    storageBucket: envFirebaseConfig.storageBucket || storedConfig.storageBucket,
+    messagingSenderId: envFirebaseConfig.messagingSenderId || storedConfig.messagingSenderId,
+    appId: envFirebaseConfig.appId || storedConfig.appId,
+  };
 }
 
 function defaultDateRange(): DateRange {
@@ -257,7 +291,8 @@ function buildCsv(enquiries: Enquiry[]) {
 }
 
 export default function AdminDashboard() {
-  const services = useMemo(getFirebaseServices, []);
+  const [configVersion, setConfigVersion] = useState(0);
+  const services = useMemo(getFirebaseServices, [configVersion]);
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(Boolean(services));
   const [page, setPage] = useState<AdminPage>("dashboard");
@@ -283,7 +318,7 @@ export default function AdminDashboard() {
     localStorage.setItem("webtrivo-admin-theme", theme);
   }, [theme]);
 
-  if (!services) return <AdminSetupNotice />;
+  if (!services) return <AdminSetupNotice onSaved={() => setConfigVersion((value) => value + 1)} />;
   if (authLoading) return <AdminLoading />;
   if (!user) return <AdminLogin services={services} />;
 
@@ -1447,13 +1482,64 @@ function Notice({ tone, children }: { tone: "error" | "info"; children: ReactNod
   return <div className={`admin-notice ${tone}`}>{children}</div>;
 }
 
-function AdminSetupNotice() {
+function AdminSetupNotice({ onSaved }: { onSaved: () => void }) {
+  const [config, setConfig] = useState<FirebaseWebConfig>(() => readStoredFirebaseConfig());
+  const [message, setMessage] = useState("");
+
+  function update(field: keyof FirebaseWebConfig, value: string) {
+    setConfig((current) => ({ ...current, [field]: value }));
+  }
+
+  function save() {
+    const cleanedConfig = Object.fromEntries(Object.entries(config).map(([key, value]) => [key, String(value || "").trim()])) as FirebaseWebConfig;
+    if (!isFirebaseConfigReady(cleanedConfig)) {
+      setMessage("apiKey, authDomain, projectId, and appId are required.");
+      return;
+    }
+    localStorage.setItem(firebaseConfigStorageKey, JSON.stringify(cleanedConfig));
+    setMessage("Firebase config saved in this browser. Opening admin login...");
+    onSaved();
+  }
+
   return (
     <div className="admin-login-page">
       <section className="admin-login-card">
         <h1>Firebase admin setup required</h1>
-        <p>The admin panel no longer renders fake data. Add Firebase Auth and Firestore Vite environment variables to enable login and live data.</p>
-        <code>VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_APP_ID</code>
+        <p>Add your Firebase web app config to enable Auth and Firestore. This does not create fake data; it only connects the admin to your real project.</p>
+        {message && <Notice tone={message.includes("saved") ? "info" : "error"}>{message}</Notice>}
+        <div className="admin-setup-grid">
+          <label>
+            apiKey
+            <input value={config.apiKey || ""} onChange={(event) => update("apiKey", event.target.value)} />
+          </label>
+          <label>
+            authDomain
+            <input value={config.authDomain || ""} onChange={(event) => update("authDomain", event.target.value)} placeholder="your-project.firebaseapp.com" />
+          </label>
+          <label>
+            projectId
+            <input value={config.projectId || ""} onChange={(event) => update("projectId", event.target.value)} />
+          </label>
+          <label>
+            appId
+            <input value={config.appId || ""} onChange={(event) => update("appId", event.target.value)} />
+          </label>
+          <label>
+            storageBucket
+            <input value={config.storageBucket || ""} onChange={(event) => update("storageBucket", event.target.value)} />
+          </label>
+          <label>
+            messagingSenderId
+            <input value={config.messagingSenderId || ""} onChange={(event) => update("messagingSenderId", event.target.value)} />
+          </label>
+        </div>
+        <button className="admin-primary" type="button" onClick={save}>
+          Save Firebase config
+        </button>
+        <a className="admin-help-link" href="https://console.firebase.google.com/" target="_blank" rel="noreferrer">
+          Open Firebase Console
+        </a>
+        <small>For permanent deployment, add the same values as GitHub Actions secrets or Vite env vars before building.</small>
       </section>
     </div>
   );
