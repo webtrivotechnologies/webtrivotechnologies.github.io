@@ -8,8 +8,6 @@ import {
   Copy,
   Download,
   Edit3,
-  Eye,
-  FileText,
   Filter,
   Globe2,
   Home,
@@ -30,7 +28,6 @@ import {
   Smartphone,
   Star,
   Sun,
-  Trash2,
   Users,
   X,
 } from "lucide-react";
@@ -38,140 +35,60 @@ import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 
 type Role = "Super Admin" | "Content Manager" | "Sales Manager" | "Viewer";
-type AdminPage =
-  | "dashboard"
-  | "analytics-overview"
-  | "traffic-sources"
-  | "geographic"
-  | "page-performance"
-  | "conversion"
-  | "campaign-tracking"
-  | "device-analytics"
-  | "enquiries"
-  | "campaign-builder"
-  | "hero-content"
-  | "services-content"
-  | "portfolio-content"
-  | "testimonials-content"
-  | "faqs-content"
-  | "contact-info"
-  | "seo-settings"
-  | "users-roles"
-  | "activity-log"
-  | "notifications"
-  | "backup-export"
-  | "website-settings"
-  | "social-media"
-  | "cookie-privacy";
+type AdminPage = "dashboard" | "analytics" | "enquiries" | "content" | "team" | "settings";
+type AnalyticsTab = "overview" | "traffic" | "geographic" | "pages" | "conversions" | "campaigns" | "devices";
+type ContentTab = "hero" | "services" | "portfolio" | "testimonials" | "faqs" | "contact" | "seo";
+type TeamTab = "users" | "activity";
+type SettingsTab = "website" | "social" | "privacy" | "backup";
 
 const roles: Role[] = ["Super Admin", "Content Manager", "Sales Manager", "Viewer"];
 
 const roleAccess: Record<Role, AdminPage[]> = {
-  "Super Admin": [
-    "dashboard",
-    "analytics-overview",
-    "traffic-sources",
-    "geographic",
-    "page-performance",
-    "conversion",
-    "campaign-tracking",
-    "device-analytics",
-    "enquiries",
-    "campaign-builder",
-    "hero-content",
-    "services-content",
-    "portfolio-content",
-    "testimonials-content",
-    "faqs-content",
-    "contact-info",
-    "seo-settings",
-    "users-roles",
-    "activity-log",
-    "notifications",
-    "backup-export",
-    "website-settings",
-    "social-media",
-    "cookie-privacy",
-  ],
-  "Content Manager": [
-    "dashboard",
-    "hero-content",
-    "services-content",
-    "portfolio-content",
-    "testimonials-content",
-    "faqs-content",
-    "contact-info",
-    "seo-settings",
-    "website-settings",
-    "social-media",
-    "cookie-privacy",
-  ],
-  "Sales Manager": [
-    "dashboard",
-    "analytics-overview",
-    "traffic-sources",
-    "conversion",
-    "campaign-tracking",
-    "enquiries",
-    "campaign-builder",
-    "notifications",
-  ],
-  Viewer: ["dashboard", "analytics-overview", "traffic-sources", "geographic", "page-performance", "device-analytics"],
+  "Super Admin": ["dashboard", "analytics", "enquiries", "content", "team", "settings"],
+  "Content Manager": ["dashboard", "content", "settings"],
+  "Sales Manager": ["dashboard", "analytics", "enquiries"],
+  Viewer: ["dashboard", "analytics"],
 };
 
-const navGroups: Array<{
-  title: string;
-  items: Array<{ page: AdminPage; label: string; icon: typeof Home }>;
-}> = [
-  { title: "Overview", items: [{ page: "dashboard", label: "Dashboard home", icon: LayoutDashboard }] },
-  {
-    title: "Analytics",
-    items: [
-      { page: "analytics-overview", label: "Overview", icon: BarChart3 },
-      { page: "traffic-sources", label: "Traffic Sources", icon: PieChart },
-      { page: "geographic", label: "Geographic", icon: Globe2 },
-      { page: "page-performance", label: "Page Performance", icon: FileText },
-      { page: "conversion", label: "Conversion Analytics", icon: Activity },
-      { page: "campaign-tracking", label: "Campaign Tracking", icon: Link },
-      { page: "device-analytics", label: "Device Analytics", icon: Smartphone },
-    ],
-  },
-  {
-    title: "CRM",
-    items: [
-      { page: "enquiries", label: "Enquiries", icon: Mail },
-      { page: "campaign-builder", label: "Campaign URL Builder", icon: Link },
-    ],
-  },
-  {
-    title: "Content",
-    items: [
-      { page: "hero-content", label: "Hero", icon: Image },
-      { page: "services-content", label: "Services", icon: Settings },
-      { page: "portfolio-content", label: "Portfolio", icon: BookOpen },
-      { page: "testimonials-content", label: "Testimonials", icon: Star },
-      { page: "faqs-content", label: "FAQs", icon: MessageCircle },
-      { page: "contact-info", label: "Contact Info", icon: Mail },
-      { page: "seo-settings", label: "SEO Settings", icon: Globe2 },
-    ],
-  },
-  {
-    title: "Admin",
-    items: [
-      { page: "users-roles", label: "Users & Roles", icon: Users },
-      { page: "activity-log", label: "Activity Log", icon: Activity },
-      { page: "notifications", label: "Notifications", icon: Bell },
-      { page: "backup-export", label: "Backup/Export", icon: Archive },
-    ],
-  },
-  {
-    title: "Settings",
-    items: [
-      { page: "website-settings", label: "Website Settings", icon: Settings },
-      { page: "social-media", label: "Social Media", icon: Link },
-      { page: "cookie-privacy", label: "Cookie/Privacy", icon: Shield },
-    ],
-  },
+const navItems: Array<{ page: AdminPage; label: string; icon: typeof Home }> = [
+  { page: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { page: "analytics", label: "Analytics", icon: BarChart3 },
+  { page: "enquiries", label: "Enquiries", icon: Mail },
+  { page: "content", label: "Content", icon: Edit3 },
+  { page: "team", label: "Team", icon: Users },
+  { page: "settings", label: "Settings", icon: Settings },
+];
+
+const analyticsTabs: Array<{ id: AnalyticsTab; label: string }> = [
+  { id: "overview", label: "Overview" },
+  { id: "traffic", label: "Traffic" },
+  { id: "geographic", label: "Geographic" },
+  { id: "pages", label: "Pages" },
+  { id: "conversions", label: "Conversions" },
+  { id: "campaigns", label: "Campaigns" },
+  { id: "devices", label: "Devices" },
+];
+
+const contentTabs: Array<{ id: ContentTab; label: string; icon: typeof Home }> = [
+  { id: "hero", label: "Hero", icon: Image },
+  { id: "services", label: "Services", icon: Settings },
+  { id: "portfolio", label: "Portfolio", icon: BookOpen },
+  { id: "testimonials", label: "Testimonials", icon: Star },
+  { id: "faqs", label: "FAQs", icon: MessageCircle },
+  { id: "contact", label: "Contact Info", icon: Mail },
+  { id: "seo", label: "SEO Settings", icon: Globe2 },
+];
+
+const teamTabs: Array<{ id: TeamTab; label: string }> = [
+  { id: "users", label: "Users & Roles" },
+  { id: "activity", label: "Activity Log" },
+];
+
+const settingsTabs: Array<{ id: SettingsTab; label: string }> = [
+  { id: "website", label: "Website" },
+  { id: "social", label: "Social Media" },
+  { id: "privacy", label: "Cookie & Privacy" },
+  { id: "backup", label: "Backup & Export" },
 ];
 
 const enquiries = [
@@ -241,14 +158,8 @@ export default function AdminDashboard() {
   const [selectedLead, setSelectedLead] = useState<(typeof enquiries)[number] | null>(null);
 
   const allowedPage = canAccess(role, page) ? page : roleAccess[role][0];
-  const currentLabel = navGroups.flatMap((group) => group.items).find((item) => item.page === allowedPage)?.label || "Dashboard";
-  const visibleGroups = useMemo(
-    () =>
-      navGroups
-        .map((group) => ({ ...group, items: group.items.filter((item) => canAccess(role, item.page)) }))
-        .filter((group) => group.items.length),
-    [role],
-  );
+  const currentLabel = navItems.find((item) => item.page === allowedPage)?.label || "Dashboard";
+  const visibleItems = useMemo(() => navItems.filter((item) => canAccess(role, item.page)), [role]);
 
   return (
     <div className={`admin-shell ${theme === "dark" ? "admin-dark" : ""}`}>
@@ -260,25 +171,20 @@ export default function AdminDashboard() {
             <ChevronDown size={16} />
           </button>
         </div>
-        <nav>
-          {visibleGroups.map((group) => (
-            <section key={group.title}>
-              {!collapsed && <p>{group.title}</p>}
-              {group.items.map((item) => (
-                <button
-                  className={allowedPage === item.page ? "active" : ""}
-                  type="button"
-                  key={item.page}
-                  onClick={() => {
-                    setPage(item.page);
-                    setSidebarOpen(false);
-                  }}
-                >
-                  <item.icon size={18} />
-                  {!collapsed && <span>{item.label}</span>}
-                </button>
-              ))}
-            </section>
+        <nav aria-label="Admin navigation">
+          {visibleItems.map((item) => (
+            <button
+              className={allowedPage === item.page ? "active" : ""}
+              type="button"
+              key={item.page}
+              onClick={() => {
+                setPage(item.page);
+                setSidebarOpen(false);
+              }}
+            >
+              <item.icon size={18} />
+              {!collapsed && <span>{item.label}</span>}
+            </button>
           ))}
         </nav>
       </aside>
@@ -303,11 +209,14 @@ export default function AdminDashboard() {
           <button className="admin-icon-button" type="button" onClick={() => setTheme(theme === "light" ? "dark" : "light")} aria-label="Toggle theme">
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
-          <select value={role} onChange={(event) => setRole(event.target.value as Role)} aria-label="Preview role">
-            {roles.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
+          <label className="admin-role-preview">
+            <span>Viewing as</span>
+            <select value={role} onChange={(event) => setRole(event.target.value as Role)} aria-label="Viewing as role">
+              {roles.map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
+          </label>
           <div className="admin-user">
             <span>RK</span>
             <div>
@@ -334,27 +243,25 @@ export default function AdminDashboard() {
 
 function PageRenderer({ page, role, onSelectLead }: { page: AdminPage; role: Role; onSelectLead: (lead: (typeof enquiries)[number]) => void }) {
   if (page === "dashboard") return <DashboardHome />;
+  if (page === "analytics") return <AnalyticsWorkspace />;
   if (page === "enquiries") return <EnquiriesCRM onSelectLead={onSelectLead} />;
-  if (page === "campaign-builder") return <CampaignBuilder />;
-  if (page === "users-roles") return <UsersRoles />;
-  if (page === "activity-log") return <ActivityLog />;
-  if (page === "notifications") return <Notifications />;
-  if (page === "backup-export") return <BackupExport />;
-  if (page.includes("content") || page === "hero-content" || page === "contact-info" || page === "seo-settings") {
-    return <ContentManager page={page} role={role} />;
-  }
-  if (page.includes("settings") || page === "social-media" || page === "cookie-privacy") return <SettingsPage page={page} />;
-  return <AnalyticsPage page={page} />;
+  if (page === "content") return <ContentWorkspace role={role} />;
+  if (page === "team") return <TeamWorkspace />;
+  return <SettingsWorkspace />;
 }
 
-function PageHeader({ title, description, action }: { title: string; description: string; action?: string }) {
+function PageHeader({ title, description, action, onAction }: { title: string; description: string; action?: string; onAction?: () => void }) {
   return (
     <div className="admin-page-header">
       <div>
         <h1>{title}</h1>
         <p>{description}</p>
       </div>
-      {action && <button className="admin-primary">{action}</button>}
+      {action && (
+        <button className="admin-primary" type="button" onClick={onAction}>
+          {action}
+        </button>
+      )}
     </div>
   );
 }
@@ -362,13 +269,13 @@ function PageHeader({ title, description, action }: { title: string; description
 function DashboardHome() {
   return (
     <>
-      <PageHeader title="Dashboard home" description="Quick operational view of analytics, enquiries, and admin activity." action="Export CSV" />
-      <div className="admin-filterbar">
-        <button>Today</button>
-        <button className="active">7 days</button>
-        <button>30 days</button>
-        <button>Custom</button>
+      <PageHeader title="Dashboard" description="Quick operational view of analytics, enquiries, and admin activity." action="Export CSV" />
+      <div className="admin-ga-banner">
+        <BarChart3 size={18} />
+        <span>Google Analytics is not connected yet.</span>
+        <a>Connect now -&gt;</a>
       </div>
+      <DateRangeFilter />
       <div className="admin-kpi-grid">
         {["Total Users", "New Users", "Sessions", "Enquiries", "Conversion Rate", "WhatsApp Clicks"].map((label, index) => (
           <div className="admin-kpi-slot" key={label}>
@@ -393,16 +300,15 @@ function KpiCard({ label, connected }: { label: string; connected: boolean }) {
     return (
       <article className="admin-kpi empty">
         <BarChart3 size={20} />
-        <strong>{label}</strong>
-        <span>Not connected</span>
-        <a>Connect Google Analytics →</a>
+        <strong>-</strong>
+        <small>{label}</small>
       </article>
     );
   }
 
   return (
     <article className="admin-kpi">
-      <span className="trend up">↑ 12%</span>
+      <span className="trend up">+12%</span>
       <strong>{label === "Conversion Rate" ? "4.8%" : label === "WhatsApp Clicks" ? "184" : "27"}</strong>
       <small>{label}</small>
       <div className="sparkline" />
@@ -410,31 +316,86 @@ function KpiCard({ label, connected }: { label: string; connected: boolean }) {
   );
 }
 
-function AnalyticsPage({ page }: { page: AdminPage }) {
-  const title = page
-    .split("-")
-    .map((part) => part[0].toUpperCase() + part.slice(1))
-    .join(" ");
+function DateRangeFilter() {
+  return (
+    <div className="admin-filterbar">
+      <button>Today</button>
+      <button className="active">7 days</button>
+      <button>30 days</button>
+      <button>Custom</button>
+    </div>
+  );
+}
+
+function AnalyticsWorkspace() {
+  const [activeTab, setActiveTab] = useState<AnalyticsTab>("overview");
+  const [builderOpen, setBuilderOpen] = useState(false);
+  const title = analyticsTabs.find((tab) => tab.id === activeTab)?.label || "Overview";
+
   return (
     <>
-      <PageHeader title={title} description="Shared analytics layout with filters, KPI cards, chart states, and data tables." action="Export report" />
-      <div className="admin-filterbar">
-        <button className="active">7 days</button>
-        <button>Segment: All traffic</button>
-        <button>Compare previous</button>
-      </div>
+      <PageHeader
+        title="Analytics"
+        description="Performance, acquisition, geography, page, conversion, campaign, and device reporting in one place."
+        action={activeTab === "campaigns" ? "+ Create Campaign URL" : "Export report"}
+        onAction={activeTab === "campaigns" ? () => setBuilderOpen(true) : undefined}
+      />
+      <DateRangeFilter />
+      <UnderlineTabs tabs={analyticsTabs} active={activeTab} onChange={setActiveTab} />
       <div className="admin-kpi-grid three">
-        <KpiCard label="Sessions" connected />
+        <KpiCard label={activeTab === "campaigns" ? "Campaign Clicks" : "Sessions"} connected />
         <KpiCard label="Conversions" connected />
         <KpiCard label="Conversion Rate" connected />
       </div>
       <div className="admin-chart-grid">
-        <ChartCard title={page === "geographic" ? "Top countries and cities" : "Visitors trend"} />
-        <ChartCard title={page === "conversion" ? "Visit → Service View → Enquiry Started → Submitted" : "Source breakdown"} />
+        <ChartCard title={activeTab === "geographic" ? "Top countries and cities" : `${title} trend`} />
+        <ChartCard title={activeTab === "conversions" ? "Visit -> Service View -> Enquiry Started -> Submitted" : `${title} breakdown`} />
       </div>
-      {page === "geographic" && <p className="admin-disclaimer">Location is approximate, based on IP-derived region.</p>}
-      <AdminTable columns={["Source / Page", "Sessions", "Conversions", "Rate"]} rows={[["LinkedIn / CRM", "182", "9", "4.9%"], ["Google / ERP", "241", "8", "3.3%"]]} />
+      {activeTab === "geographic" && <p className="admin-disclaimer">Location is approximate, based on IP-derived region.</p>}
+      {activeTab === "campaigns" ? <CampaignTrackingTable /> : <AnalyticsTable activeTab={activeTab} />}
+      {builderOpen && <CampaignUrlModal onClose={() => setBuilderOpen(false)} />}
     </>
+  );
+}
+
+function AnalyticsTable({ activeTab }: { activeTab: AnalyticsTab }) {
+  const firstColumn = activeTab === "pages" ? "Page" : activeTab === "devices" ? "Device" : activeTab === "traffic" ? "Source" : "Source / Page";
+  return (
+    <AdminTable
+      columns={[firstColumn, "Sessions", "Conversions", "Rate"]}
+      rows={[
+        ["LinkedIn / CRM", "182", "9", "4.9%"],
+        ["Google / ERP", "241", "8", "3.3%"],
+      ]}
+    />
+  );
+}
+
+function CampaignTrackingTable() {
+  return (
+    <AdminTable
+      columns={["Campaign", "Generated URL", "Clicks", "Enquiries", "Rate", "Actions"]}
+      rows={campaigns.map((campaign) => [campaign.name, campaign.url, String(campaign.clicks), String(campaign.enquiries), campaign.rate, "Copy"])}
+    />
+  );
+}
+
+function CampaignUrlModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="admin-modal-backdrop" role="presentation">
+      <section className="admin-modal" role="dialog" aria-label="Create campaign URL">
+        <header>
+          <div>
+            <h2>Create campaign URL</h2>
+            <p>Generate a UTM link and save it to campaign tracking.</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close campaign URL builder">
+            <X size={20} />
+          </button>
+        </header>
+        <CampaignBuilder compact />
+      </section>
+    </div>
   );
 }
 
@@ -457,7 +418,7 @@ function EnquiriesCRM({ onSelectLead }: { onSelectLead: (lead: (typeof enquiries
   const [view, setView] = useState<"table" | "kanban">("table");
   return (
     <>
-      <PageHeader title="Enquiry CRM" description="Sort, filter, assign, score, and follow up with every captured lead." action="Bulk export" />
+      <PageHeader title="Enquiries" description="Sort, filter, assign, score, and follow up with every captured lead." action="Bulk export" />
       <div className="admin-filterbar">
         <button>
           <Filter size={15} /> Status
@@ -517,7 +478,7 @@ function LeadTable({ onSelectLead }: { onSelectLead: (lead: (typeof enquiries)[n
           ))}
         </tbody>
       </table>
-      <div className="admin-pagination">Rows per page: 10 · Page 1 of 1</div>
+      <div className="admin-pagination">Rows per page: 10 - Page 1 of 1</div>
     </div>
   );
 }
@@ -550,7 +511,9 @@ function LeadDrawer({ lead, onClose }: { lead: (typeof enquiries)[number]; onClo
       <header>
         <div>
           <h2>{lead.name}</h2>
-          <p>{lead.company} · {lead.service}</p>
+          <p>
+            {lead.company} - {lead.service}
+          </p>
         </div>
         <button type="button" onClick={onClose} aria-label="Close lead details">
           <X size={20} />
@@ -558,7 +521,7 @@ function LeadDrawer({ lead, onClose }: { lead: (typeof enquiries)[number]; onClo
       </header>
       <section>
         <h3>Attribution</h3>
-        <p>Source: {lead.source} · Campaign: July CRM push · Landing page: /#services</p>
+        <p>Source: {lead.source} - Campaign: July CRM push - Landing page: /#services</p>
       </section>
       <section>
         <h3>Status and score</h3>
@@ -572,8 +535,8 @@ function LeadDrawer({ lead, onClose }: { lead: (typeof enquiries)[number]; onClo
       <section>
         <h3>Notes timeline</h3>
         <ul>
-          <li>Ritesh added qualification note · 10:42 AM</li>
-          <li>Follow-up scheduled · Yesterday</li>
+          <li>Ritesh added qualification note - 10:42 AM</li>
+          <li>Follow-up scheduled - Yesterday</li>
         </ul>
       </section>
       <div className="drawer-actions">
@@ -585,10 +548,10 @@ function LeadDrawer({ lead, onClose }: { lead: (typeof enquiries)[number]; onClo
   );
 }
 
-function CampaignBuilder() {
+function CampaignBuilder({ compact = false }: { compact?: boolean }) {
   return (
     <>
-      <PageHeader title="Campaign URL Builder" description="Generate UTM links and save campaigns for ROI tracking." action="Save campaign" />
+      {!compact && <PageHeader title="Campaign URL Builder" description="Generate UTM links and save campaigns for ROI tracking." action="Save campaign" />}
       <div className="builder-grid">
         <form className="admin-form">
           {["Website URL", "Source", "Medium", "Campaign", "Content", "Term"].map((field, index) => (
@@ -606,23 +569,63 @@ function CampaignBuilder() {
           </button>
         </Panel>
       </div>
-      <AdminTable columns={["Campaign", "Generated URL", "Clicks", "Enquiries", "Rate", ""]} rows={campaigns.map((campaign) => [campaign.name, campaign.url, String(campaign.clicks), String(campaign.enquiries), campaign.rate, "Delete"])} />
     </>
   );
 }
 
-function ContentManager({ page, role }: { page: AdminPage; role: Role }) {
-  const title = page === "seo-settings" ? "SEO Settings" : page.split("-")[0].replace(/^\w/, (letter) => letter.toUpperCase());
+function ContentWorkspace({ role }: { role: Role }) {
+  const [activeTab, setActiveTab] = useState<ContentTab>("hero");
+  return (
+    <>
+      <PageHeader title="Content" description="Manage public website content, contact data, and SEO settings from one organized workspace." />
+      <div className="admin-content-workspace">
+        <aside className="admin-secondary-nav" aria-label="Content sections">
+          {contentTabs.map((tab) => (
+            <button className={activeTab === tab.id ? "active" : ""} type="button" key={tab.id} onClick={() => setActiveTab(tab.id)}>
+              <tab.icon size={17} />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </aside>
+        <div className="admin-secondary-panel">
+          <ContentManager tab={activeTab} role={role} />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function ContentManager({ tab, role }: { tab: ContentTab; role: Role }) {
+  const labels: Record<ContentTab, string> = {
+    hero: "Hero",
+    services: "Services",
+    portfolio: "Portfolio",
+    testimonials: "Testimonials",
+    faqs: "FAQs",
+    contact: "Contact Info",
+    seo: "SEO Settings",
+  };
+  const title = labels[tab];
   const canEdit = role !== "Viewer";
-  if (page === "hero-content" || page === "contact-info") {
+
+  if (tab === "hero" || tab === "contact") {
     return (
       <>
         <PageHeader title={`${title} content`} description="Singleton settings form with unsaved change protection and live preview." action={canEdit ? "Save changes" : undefined} />
         <div className="builder-grid">
           <form className="admin-form">
-            <label>Headline<input defaultValue="Transforming Ideas Into Powerful Digital Solutions" /></label>
-            <label>Description<textarea defaultValue="Modern websites, apps, CRM, ERP, and software for businesses worldwide." /></label>
-            <label>Primary CTA<input defaultValue="Start Your Project" /></label>
+            <label>
+              Headline
+              <input defaultValue="Transforming Ideas Into Powerful Digital Solutions" />
+            </label>
+            <label>
+              Description
+              <textarea defaultValue="Modern websites, apps, CRM, ERP, and software for businesses worldwide." />
+            </label>
+            <label>
+              Primary CTA
+              <input defaultValue="Start Your Project" />
+            </label>
           </form>
           <Panel title="Live preview">
             <div className="content-preview">Public-site preview updates here before saving.</div>
@@ -631,17 +634,28 @@ function ContentManager({ page, role }: { page: AdminPage; role: Role }) {
       </>
     );
   }
-  if (page === "seo-settings") return <SeoSettings />;
+
+  if (tab === "seo") return <SeoSettings />;
+
   return (
     <>
       <PageHeader title={`${title} content`} description="CRUD table with reorder, active toggle, edit, delete, and live preview patterns." action={canEdit ? "+ Add New" : undefined} />
-      <AdminTable columns={["Order", "Title", "Active", "Updated", "Actions"]} rows={[["1", `${title} item`, "On", "Today", "Edit · Delete"], ["2", `${title} item`, "Off", "Yesterday", "Edit · Delete"]]} />
+      <AdminTable columns={["Order", "Title", "Active", "Updated", "Actions"]} rows={[["1", `${title} item`, "On", "Today", "Edit - Delete"], ["2", `${title} item`, "Off", "Yesterday", "Edit - Delete"]]} />
       <Panel title="Editor modal pattern">
         <div className="editor-preview-grid">
           <div className="admin-form">
-            <label>Title<input defaultValue={`${title} title`} /></label>
-            <label>Description<textarea defaultValue="Rich text or markdown editor area." /></label>
-            <label>Image upload<div className="dropzone">Drag image here · crop guide shown</div></label>
+            <label>
+              Title
+              <input defaultValue={`${title} title`} />
+            </label>
+            <label>
+              Description
+              <textarea defaultValue="Rich text or markdown editor area." />
+            </label>
+            <label>
+              Image upload
+              <div className="dropzone">Drag image here - crop guide shown</div>
+            </label>
           </div>
           <div className="content-preview">Live public rendering preview</div>
         </div>
@@ -656,10 +670,26 @@ function SeoSettings() {
       <PageHeader title="SEO Settings" description="Manage page title, meta description, canonical URL, keywords, and social preview." action="Save SEO" />
       <div className="builder-grid">
         <form className="admin-form">
-          <label>Page title <small>58 / 60</small><input defaultValue="Webtrivo Technologies - Web, App, CRM & ERP Development" /></label>
-          <label>Meta description <small>142 / 160</small><textarea defaultValue="Custom web, mobile app, CRM, ERP, and e-commerce development for global businesses." /></label>
-          <label>Keywords<div className="tag-row"><span>CRM development</span><span>ERP solutions</span><span>custom software</span></div></label>
-          <label>Canonical URL<input defaultValue="https://webtrivotechnologies.github.io/" /></label>
+          <label>
+            Page title <small>58 / 60</small>
+            <input defaultValue="Webtrivo Technologies - Web, App, CRM & ERP Development" />
+          </label>
+          <label>
+            Meta description <small>142 / 160</small>
+            <textarea defaultValue="Custom web, mobile app, CRM, ERP, and e-commerce development for global businesses." />
+          </label>
+          <label>
+            Keywords
+            <div className="tag-row">
+              <span>CRM development</span>
+              <span>ERP solutions</span>
+              <span>custom software</span>
+            </div>
+          </label>
+          <label>
+            Canonical URL
+            <input defaultValue="https://webtrivotechnologies.github.io/" />
+          </label>
         </form>
         <Panel title="Social share preview">
           <div className="og-preview">
@@ -673,15 +703,32 @@ function SeoSettings() {
   );
 }
 
+function TeamWorkspace() {
+  const [activeTab, setActiveTab] = useState<TeamTab>("users");
+  return (
+    <>
+      <PageHeader title="Team" description="Manage users, roles, permissions, and the activity trail in one place." action={activeTab === "users" ? "Invite user" : undefined} />
+      <UnderlineTabs tabs={teamTabs} active={activeTab} onChange={setActiveTab} />
+      {activeTab === "users" ? <UsersRoles /> : <ActivityLog />}
+    </>
+  );
+}
+
 function UsersRoles() {
   return (
     <>
-      <PageHeader title="Users & Roles" description="Invite users, edit roles, disable accounts, and review permissions." action="Invite user" />
       <AdminTable columns={["Name", "Email", "Role", "Status", "Last login", "Actions"]} rows={[["Ritesh Kumar", "ritesh@example.com", "Super Admin", "Active", "Today", "Edit role"], ["Priya Singh", "priya@example.com", "Content Manager", "Invited", "Never", "Resend invite"]]} />
       <Panel title="Role permission matrix">
         <div className="permission-grid">
-          {["Module", ...roles].map((item) => <strong key={item}>{item}</strong>)}
-          {["Analytics", "CRM", "Content", "Admin", "Settings"].flatMap((module) => [<span key={module}>{module}</span>, ...roles.map((role) => <span key={`${module}-${role}`}>{roleAccess[role].some((page) => page.includes(module.toLowerCase().split(" ")[0]) || page === "dashboard") ? "✓" : "—"}</span>)])}
+          {["Module", ...roles].map((item) => (
+            <strong key={item}>{item}</strong>
+          ))}
+          {["Dashboard", "Analytics", "Enquiries", "Content", "Team", "Settings"].flatMap((module) => [
+            <span key={module}>{module}</span>,
+            ...roles.map((role) => (
+              <span key={`${module}-${role}`}>{roleAccess[role].includes(module.toLowerCase() as AdminPage) ? "Yes" : "-"}</span>
+            )),
+          ])}
         </div>
       </Panel>
     </>
@@ -689,53 +736,64 @@ function UsersRoles() {
 }
 
 function ActivityLog() {
+  return <AdminTable columns={["Actor", "Action", "Target", "Timestamp"]} rows={[["Priya", "Updated", "FAQ #3", "Today"], ["Ritesh", "Exported", "Enquiries CSV", "Yesterday"]]} />;
+}
+
+function SettingsWorkspace() {
+  const [activeTab, setActiveTab] = useState<SettingsTab>("website");
+  const action = activeTab === "backup" ? undefined : "Save settings";
   return (
     <>
-      <PageHeader title="Activity Log" description="Read-only chronological audit trail, filterable by user and date range." />
-      <AdminTable columns={["Actor", "Action", "Target", "Timestamp"]} rows={[["Priya", "Updated", "FAQ #3", "Today"], ["Ritesh", "Exported", "Enquiries CSV", "Yesterday"]]} />
+      <PageHeader title="Settings" description="Website, social media, privacy, and backup utilities collected into one settings area." action={action} />
+      <UnderlineTabs tabs={settingsTabs} active={activeTab} onChange={setActiveTab} />
+      {activeTab === "backup" ? <BackupExport /> : <SettingsForm activeTab={activeTab} />}
     </>
   );
 }
 
-function Notifications() {
+function SettingsForm({ activeTab }: { activeTab: SettingsTab }) {
+  const config: Record<Exclude<SettingsTab, "backup">, Array<{ label: string; value: string; multiline?: boolean }>> = {
+    website: [
+      { label: "Website name", value: "Webtrivo Technologies" },
+      { label: "Primary email", value: "riteshkumar7463867570@gmail.com" },
+      { label: "Admin notification email", value: "admin@webtrivo.com" },
+    ],
+    social: [
+      { label: "LinkedIn URL", value: "https://linkedin.com/company/webtrivo" },
+      { label: "WhatsApp number", value: "+91 74638 67570" },
+      { label: "GitHub URL", value: "https://github.com/webtrivotechnologies" },
+    ],
+    privacy: [
+      { label: "Cookie banner copy", value: "Essential storage only; analytics-ready disclosure.", multiline: true },
+      { label: "Privacy policy URL", value: "/privacy" },
+      { label: "Consent mode", value: "Analytics disabled until accepted" },
+    ],
+  };
+
   return (
-    <>
-      <PageHeader title="Notifications" description="New enquiry, follow-up due, and campaign milestone notifications." action="Mark all as read" />
-      <div className="notification-list">
-        {["New enquiry from LinkedIn", "Follow-up due today for PropertyHub", "Campaign reached 100 clicks"].map((item) => <article key={item}>{item}<span>Unread</span></article>)}
-      </div>
-    </>
+    <form className="admin-form single">
+      {config[activeTab as Exclude<SettingsTab, "backup">].map((field) => (
+        <label key={field.label}>
+          {field.label}
+          {field.multiline ? <textarea defaultValue={field.value} /> : <input defaultValue={field.value} />}
+        </label>
+      ))}
+    </form>
   );
 }
 
 function BackupExport() {
   return (
-    <>
-      <PageHeader title="Backup / Export" description="Export CRM data and content backups from the static admin UI pattern." />
-      <div className="admin-kpi-grid three">
-        {["Enquiries CSV", "Content JSON backup", "Campaign report"].map((item) => (
-          <article className="admin-export-card" key={item}>
-            <Download size={20} />
-            <strong>{item}</strong>
-            <span>Last export: Not yet exported</span>
-            <button>Export</button>
-          </article>
-        ))}
-      </div>
-    </>
-  );
-}
-
-function SettingsPage({ page }: { page: AdminPage }) {
-  return (
-    <>
-      <PageHeader title={page.split("-").map((part) => part[0].toUpperCase() + part.slice(1)).join(" ")} description="Settings-style form with save confirmation and validation states." action="Save settings" />
-      <form className="admin-form single">
-        <label>Website name<input defaultValue="Webtrivo Technologies" /></label>
-        <label>Primary email<input defaultValue="riteshkumar7463867570@gmail.com" /></label>
-        <label>Privacy copy<textarea defaultValue="Essential storage only; analytics-ready disclosure." /></label>
-      </form>
-    </>
+    <div className="admin-kpi-grid three">
+      {["Enquiries CSV", "Content JSON backup", "Campaign report"].map((item) => (
+        <article className="admin-export-card" key={item}>
+          <Download size={20} />
+          <strong>{item}</strong>
+          <span>Last export: Not yet exported</span>
+          <button>Export</button>
+        </article>
+      ))}
+    </div>
   );
 }
 
@@ -744,7 +802,10 @@ function RecentEnquiries() {
     <div className="recent-list">
       {enquiries.map((lead) => (
         <article key={lead.id}>
-          <div><strong>{lead.name}</strong><span>{lead.service}</span></div>
+          <div>
+            <strong>{lead.name}</strong>
+            <span>{lead.service}</span>
+          </div>
           <Badge type={lead.source}>{lead.source}</Badge>
           <Badge type={lead.status}>{lead.status}</Badge>
         </article>
@@ -756,7 +817,12 @@ function RecentEnquiries() {
 function ActivityFeed() {
   return (
     <div className="activity-feed">
-      {activity.map((item) => <article key={item}>{item}<span>2h ago</span></article>)}
+      {activity.map((item) => (
+        <article key={item}>
+          {item}
+          <span>2h ago</span>
+        </article>
+      ))}
     </div>
   );
 }
@@ -770,18 +836,40 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+function UnderlineTabs<T extends string>({ tabs, active, onChange }: { tabs: Array<{ id: T; label: string }>; active: T; onChange: (tab: T) => void }) {
+  return (
+    <div className="admin-tabs" role="tablist">
+      {tabs.map((tab) => (
+        <button className={active === tab.id ? "active" : ""} type="button" role="tab" aria-selected={active === tab.id} key={tab.id} onClick={() => onChange(tab.id)}>
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function AdminTable({ columns, rows }: { columns: string[]; rows: string[][] }) {
   return (
     <div className="admin-table-wrap">
       <table className="admin-table">
-        <thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead>
+        <thead>
+          <tr>
+            {columns.map((column) => (
+              <th key={column}>{column}</th>
+            ))}
+          </tr>
+        </thead>
         <tbody>
           {rows.map((row, index) => (
-            <tr key={index}>{row.map((cell, cellIndex) => <td key={`${index}-${cellIndex}`}>{cell}</td>)}</tr>
+            <tr key={index}>
+              {row.map((cell, cellIndex) => (
+                <td key={`${index}-${cellIndex}`}>{cell}</td>
+              ))}
+            </tr>
           ))}
         </tbody>
       </table>
-      <div className="admin-pagination">Rows per page: 10 · Pagination ready</div>
+      <div className="admin-pagination">Rows per page: 10 - Pagination ready</div>
     </div>
   );
 }
@@ -794,8 +882,8 @@ function AccessDenied({ role }: { role: Role }) {
   return (
     <section className="admin-access-denied">
       <Lock size={34} />
-      <h1>You don't have access to this section</h1>
-      <p>Your current role is {role}. Choose another role in the top bar to preview other permission sets.</p>
+      <h1>You do not have access to this section</h1>
+      <p>Your current role is {role}. Use the "Viewing as" control in the top bar to preview another permission set.</p>
     </section>
   );
 }
