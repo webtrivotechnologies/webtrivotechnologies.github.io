@@ -1265,7 +1265,19 @@ h3 {
 }
 
 .case-card {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+}
+
+.case-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.case-card-body small {
+  margin-top: auto;
 }
 
 .case-card:hover,
@@ -1285,12 +1297,22 @@ h3 {
   position: relative;
   display: grid;
   align-content: end;
-  min-height: 190px;
+  aspect-ratio: 2 / 1;
+  overflow: hidden;
   padding: 22px;
   color: #ffffff;
   background:
     radial-gradient(circle at 74% 22%, rgba(96, 165, 250, 0.62), transparent 8rem),
     var(--gradient-deep);
+}
+
+.case-thumbnail img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
 }
 
 .case-thumbnail em {
@@ -2371,7 +2393,11 @@ h3 {
     grid-template-columns: 1fr;
   }
 
-  .case-grid,
+  .case-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
   .review-grid {
     display: grid;
     grid-auto-columns: minmax(82%, 1fr);
@@ -2384,12 +2410,10 @@ h3 {
     scrollbar-width: none;
   }
 
-  .case-grid::-webkit-scrollbar,
   .review-grid::-webkit-scrollbar {
     display: none;
   }
 
-  .case-card,
   .review-card {
     scroll-snap-align: start;
   }
