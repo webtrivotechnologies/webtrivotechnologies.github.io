@@ -1,4 +1,4 @@
-import { ArrowUpRight, Globe, Lock } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { AnimatePresence, LayoutGroup, animate, motion, useInView, useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Company } from "../pages/HomePage";
@@ -46,15 +46,6 @@ function ProjectCard({ project, index }: { project: PortfolioProject; index: num
   const inner = (
     <>
       <div className="pf-frame">
-        <div className="pf-frame-bar" aria-hidden="true">
-          <i />
-          <i />
-          <i />
-          <span>
-            {project.url ? <Globe size={10} /> : <Lock size={10} />}
-            {host}
-          </span>
-        </div>
         <div className="pf-screen">
           {project.image ? (
             <img src={project.image} alt={`${project.title} preview`} loading="lazy" decoding="async" />
