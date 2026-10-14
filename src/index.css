@@ -3692,3 +3692,7 @@ h3 {
     overflow-x: auto;
   }
 }
+
+#projects {
+  scroll-margin-top: 90px;
+}

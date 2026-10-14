@@ -28,7 +28,7 @@ export const company = {
   whatsappUrl: "https://wa.me/917463867570",
   whatsappPrefill:
     "https://wa.me/917463867570?text=Hello%20Webtrivo%20Technologies%2C%20I%20would%20like%20to%20discuss%20a%20project.",
-  portfolioUrl: "https://vivanwebsolution.com/portfolio",
+  portfolioUrl: "#projects",
 };
 
 export type Company = typeof company;

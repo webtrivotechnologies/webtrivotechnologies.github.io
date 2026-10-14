@@ -1,4 +1,4 @@
-import { ExternalLink } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import type { Company } from "../pages/HomePage";
 
 type PortfolioProps = {
@@ -13,11 +13,11 @@ export default function Portfolio({ company }: PortfolioProps) {
         <h2>Explore selected project work</h2>
         <p>
           Review examples of delivered web experiences, digital platforms, and
-          business software work through our portfolio page.
+          business software work right above.
         </p>
       </div>
-      <a className="primary-button light" href={company.portfolioUrl} target="_blank" rel="noreferrer">
-        View Portfolio <ExternalLink size={18} />
+      <a className="primary-button light" href={company.portfolioUrl}>
+        View All Projects <ArrowUp size={18} />
       </a>
     </section>
   );

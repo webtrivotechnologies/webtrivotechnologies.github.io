@@ -38,7 +38,7 @@ export default function Footer({ company }: FooterProps) {
           <a href={company.whatsappPrefill} target="_blank" rel="noreferrer">
             WhatsApp
           </a>
-          <a href={company.portfolioUrl} target="_blank" rel="noreferrer">
+          <a href={company.portfolioUrl}>
             Portfolio
           </a>
         </div>

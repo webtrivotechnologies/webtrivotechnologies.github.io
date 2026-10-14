@@ -20,7 +20,7 @@ export default function CaseStudies({ company }: CaseStudiesProps) {
   const visibleStudies = filtered.slice(0, limit);
 
   return (
-    <section className="section case-section" data-reveal>
+    <section id="projects" className="section case-section" data-reveal>
       <div className="section-heading">
         <span className="eyebrow">Featured work</span>
         <h2>Project previews built around business outcomes</h2>
